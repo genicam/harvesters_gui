@@ -50,7 +50,7 @@ class Harvester(QMainWindow):
 
     def __init__(self, *, logger=None):
         #
-        self._logger = logger or get_logger(name=__name__)
+        self._logger = logger or get_logger(name='harvesters')
 
         #
         super().__init__()
@@ -678,4 +678,3 @@ if __name__ == '__main__':
     harvester = Harvester()
     harvester.show()
     sys.exit(app.exec_())
-
