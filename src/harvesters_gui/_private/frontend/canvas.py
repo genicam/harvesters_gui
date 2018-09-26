@@ -42,16 +42,9 @@ class CanvasBase(app.Canvas):
             self, *,
             image_acquisition_manager=None,
             width=640, height=480,
-            fps=30.,
+            fps=40.,
             background_color='gray'
     ):
-        """
-        As far as we know, Vispy refreshes the canvas every 1/30 sec at the
-        fastest no matter which faster number is specified. If we set any
-        value which is greater than 30, then Vispy's callback is randomly
-        called.
-        """
-
         #
         app.Canvas.__init__(
             self, size=(width, height), vsync=True, autoswap=True
@@ -223,7 +216,7 @@ class Canvas2D(CanvasBase):
         super().__init__(
             image_acquisition_manager=image_acquisition_manager,
             width=width, height=height,
-            fps=30.,
+            fps=40.,
             background_color=background_color
         )
 
