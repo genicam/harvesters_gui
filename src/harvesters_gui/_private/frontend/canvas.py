@@ -69,8 +69,8 @@ class CanvasBase(app.Canvas):
         #
         self._is_dragging = False
 
-        # If it's True , the canvas keeps image acquisition but do not
-        # draw images on the canvas.
+        # If it's True, the canvas keeps image acquisition but do not
+        # draw images on the canvas:
         self._pause_drawing = False
 
         #
