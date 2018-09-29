@@ -30,6 +30,7 @@ from vispy.gloo import Program
 from vispy.util.transforms import ortho
 
 from genicam2.gentl import PAYLOADTYPE_INFO_IDS
+from genicam2.gentl import TimeoutException
 
 # Local application/library specific imports
 from harvesters._private.core.helper.system import is_running_on_macos
@@ -99,6 +100,14 @@ class CanvasBase(app.Canvas):
             self.apply_magnification()
 
     def on_draw(self, event):
+        # Update on June 15th, 2018:
+        # According to a VisPy developer, they have not finished
+        # porting VisPy to PyQt5. Once they finished the development
+        # we should try it out if it gives us the maximum refresh rate.
+        # See the following URL to check the latest information:
+        #
+        #     https://github.com/vispy/vispy/issues/1394
+
         # Clear the canvas in gray.
         gloo.clear(color=self._background_color)
 
@@ -108,35 +117,34 @@ class CanvasBase(app.Canvas):
                 # Fetch a buffer.
                 buffer = self.iam.fetch_buffer(timeout_s=0.0001)
 
-                if buffer:
-                    # Prepare a texture to draw:
-                    self._prepare_texture(buffer)
+                # Prepare a texture to draw:
+                self._prepare_texture(buffer)
 
-                    # Draw the texture until the buffer object exists
-                    # within this scope:
-                    self._draw()
+                # Draw the texture until the buffer object exists
+                # within this scope:
+                # (We keep the buffer until the next one is delivered to
+                # keep the current chunk data alive but it depends on the
+                # application; we just want to tell you that the texture
+                # must be overdrawn until the content is alive:)
+                self._draw()
 
-                    #
-                    self.release_buffers()
+                # Release the buffers that we've kept holding so far:
+                self.release_buffers()
 
-                    # We have drawn the latest image on the canvas:
-                    drew = True
+                # We have drawn the latest image on the canvas:
+                drew = True
 
-                    #
-                    self._buffers.append(buffer)
+                # Keep the buffer alive to keep the chunk data alive until
+                # the next one is delivered:
+                self._buffers.append(buffer)
 
         except AttributeError:
-            # Harvester Core has not started image acquisition so
-            # calling fetch_buffer() raises AttributeError because
-            # None object is used for the with statement.
-
-            # Update on June 15th, 2018:
-            # According to a VisPy developer, they have not finished
-            # porting VisPy to PyQt5. Once they finished the development
-            # we should try it out if it gives us the maximum refresh rate.
-            # See the following URL to check the latest information:
-            #
-            #     https://github.com/vispy/vispy/issues/1394
+            # Calling fetch_buffer() raises AttributeError because
+            # the ImageAcquisitionManager object is None.
+            pass
+        except TimeoutException:
+            # We have an ImageAcquisitionManager object but nothing has
+            # been fetched, wait for the next round:
             pass
 
         # Draw the latest texture again if needed:
