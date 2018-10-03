@@ -44,7 +44,8 @@ class CanvasBase(app.Canvas):
             image_acquisition_manager=None,
             width=640, height=480,
             fps=30.,
-            background_color='gray'
+            background_color='gray',
+            vsync=True
     ):
         """
         As far as we know, Vispy refreshes the canvas every 1/30 sec at the
@@ -55,7 +56,7 @@ class CanvasBase(app.Canvas):
 
         #
         app.Canvas.__init__(
-            self, size=(width, height), vsync=True, autoswap=True
+            self, size=(width, height), vsync=vsync, autoswap=True
         )
 
         #
@@ -225,14 +226,16 @@ class Canvas2D(CanvasBase):
             self, *,
             image_acquisition_manager=None,
             width=640, height=480,
-            background_color='gray'
+            background_color='gray',
+            vsync=True
     ):
         #
         super().__init__(
             image_acquisition_manager=image_acquisition_manager,
             width=width, height=height,
             fps=30.,
-            background_color=background_color
+            background_color=background_color,
+            vsync=vsync
         )
 
         #
