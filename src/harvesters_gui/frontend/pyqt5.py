@@ -666,6 +666,6 @@ class ActionShowAbout(Action):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    harvester = Harvester()
+    harvester = Harvester(vsync=True)
     harvester.show()
     sys.exit(app.exec_())
