@@ -91,8 +91,6 @@ class Harvester(QMainWindow):
         for o in self._observer_widgets:
             o.update()
 
-        self._is_going_to_terminate = False
-
     def _stop_image_acquisition(self):
         self.action_stop_image_acquisition.execute()
 
@@ -100,7 +98,8 @@ class Harvester(QMainWindow):
         self.statusBar().showMessage(message)
 
     def closeEvent(self, QCloseEvent):
-        self._is_going_to_terminate = True
+        # Stop image acquisition before closing:
+        self._harvester_core.reset()
 
     def __enter__(self):
         return self
