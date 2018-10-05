@@ -29,6 +29,11 @@ from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QMainWindow, QAction, QComboBox, \
     QDesktopWidget, QFileDialog, QDialog, QShortcut, QApplication
 
+from genicam2.gentl import NotInitializedException, InvalidHandleException, \
+    InvalidIdException, ResourceInUseException, \
+    InvalidParameterException, NotImplementedException, \
+    AccessDeniedException
+
 # Local application/library specific imports
 from harvesters.core import Harvester as HarvesterCore
 from harvesters_gui._private.frontend.canvas import Canvas2D
@@ -420,9 +425,17 @@ class Harvester(QMainWindow):
 
     def action_on_connect(self):
         #
-        self._iam = self.harvester_core.create_image_acquisition_manager(
-            self.device_list.currentIndex()
-        )
+        try:
+            self._iam = self.harvester_core.create_image_acquisition_manager(
+                self.device_list.currentIndex()
+            )
+        except (
+            NotInitializedException, InvalidHandleException,
+            InvalidIdException, ResourceInUseException,
+            InvalidParameterException, NotImplementedException,
+            AccessDeniedException,
+        ) as e:
+            self._logger.error(e, exc_info=True)
 
         if not self._iam:
             # The device is not available.
