@@ -44,6 +44,7 @@ from harvesters_gui._private.frontend.pyqt5.attribute_controller import Attribut
 from harvesters_gui._private.frontend.pyqt5.device_list import ComboBox
 from harvesters_gui._private.frontend.pyqt5.helper import get_system_font
 from harvesters_gui._private.frontend.pyqt5.icon import Icon
+from harvesters_gui._private.frontend.pyqt5.thread import _PyQtThread
 from harvesters_util.logging import get_logger
 
 
@@ -440,6 +441,14 @@ class Harvester(QMainWindow):
         if not self._ia:
             # The device is not available.
             return
+
+        #
+        self.ia.thread_image_acquisition = _PyQtThread(
+            parent=self, mutex=self.mutex
+        )
+        self.ia.thread_statistics_measurement = _PyQtThread(
+            parent=self, mutex=self.mutex
+        )
 
         self.ia.updated_statistics = self._signal_update_statistics
         self.ia.signal_stop_image_acquisition = self._signal_stop_image_acquisition
