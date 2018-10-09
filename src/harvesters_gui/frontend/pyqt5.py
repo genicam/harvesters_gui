@@ -66,7 +66,7 @@ class Harvester(QMainWindow):
         self._harvester_core = HarvesterCore(
             profile=profile, logger=self._logger
         )
-        self._iam = None  # Image Acquisition Manager
+        self._ia = None  # Image Acquirer
 
         self._widget_canvas = Canvas2D(vsync=vsync)
         self._widget_canvas.create_native()
@@ -416,17 +416,17 @@ class Harvester(QMainWindow):
         return self._action_stop_image_acquisition
 
     @property
-    def iam(self):
-        return self._iam
+    def ia(self):
+        return self._ia
 
-    @iam.setter
-    def iam(self, value):
-        self._iam = value
+    @ia.setter
+    def ia(self, value):
+        self._ia = value
 
     def action_on_connect(self):
         #
         try:
-            self._iam = self.harvester_core.create_image_acquisition_manager(
+            self._ia = self.harvester_core.create_image_acquirer(
                 self.device_list.currentIndex()
             )
         except (
@@ -437,31 +437,31 @@ class Harvester(QMainWindow):
         ) as e:
             self._logger.error(e, exc_info=True)
 
-        if not self._iam:
+        if not self._ia:
             # The device is not available.
             return
 
-        self.iam.updated_statistics = self._signal_update_statistics
-        self.iam.signal_stop_image_acquisition = self._signal_stop_image_acquisition
+        self.ia.updated_statistics = self._signal_update_statistics
+        self.ia.signal_stop_image_acquisition = self._signal_stop_image_acquisition
 
         try:
-            if self.iam.device.node_map:
+            if self.ia.device.node_map:
                 self._widget_attribute_controller = \
                     AttributeController(
-                        self.iam.device.node_map,
+                        self.ia.device.node_map,
                         parent=self
                     )
         except AttributeError:
             pass
 
         #
-        self.canvas.iam = self.iam
+        self.canvas.ia = self.ia
 
     def is_enabled_on_connect(self):
         enable = False
         if self.cti_files:
             if self.harvester_core.device_info_list:
-                if self.iam is None:
+                if self.ia is None:
                     enable = True
         return enable
 
@@ -472,9 +472,9 @@ class Harvester(QMainWindow):
                 self._widget_attribute_controller = None
 
             # Discard the image acquisition manager.
-            if self.iam:
-                self.iam.destroy()
-                self._iam = None
+            if self.ia:
+                self.ia.destroy()
+                self._ia = None
 
     def action_on_select_file(self):
         # Show a dialog and update the CTI file list.
@@ -498,7 +498,7 @@ class Harvester(QMainWindow):
 
     def is_enabled_on_select_file(self):
         enable = False
-        if self.iam is None:
+        if self.ia is None:
             enable = True
         return enable
 
@@ -508,57 +508,57 @@ class Harvester(QMainWindow):
     def is_enabled_on_update_list(self):
         enable = False
         if self.cti_files:
-            if self.iam is None:
+            if self.ia is None:
                 enable = True
         return enable
 
     def is_enabled_on_disconnect(self):
         enable = False
         if self.cti_files:
-            if self.iam:
+            if self.ia:
                 enable = True
         return enable
 
     def action_on_start_image_acquisition(self):
-        if self.iam.is_acquiring_images:
+        if self.ia.is_acquiring_images:
             # If it's pausing drawing images, just resume it and
             # immediately return this method.
             if self.canvas.is_pausing:
                 self.canvas.resume_drawing()
         else:
-            self.iam.start_image_acquisition()
+            self.ia.start_image_acquisition()
 
     def is_enabled_on_start_image_acquisition(self):
         enable = False
         if self.cti_files:
-            if self.iam:
-                if not self.iam.is_acquiring_images or \
+            if self.ia:
+                if not self.ia.is_acquiring_images or \
                         self.canvas.is_pausing:
                     enable = True
         return enable
 
     def action_on_stop_image_acquisition(self):
-        self.iam.stop_image_acquisition()
+        self.ia.stop_image_acquisition()
         self.canvas.pause_drawing(False)
 
     def is_enabled_on_stop_image_acquisition(self):
         enable = False
         if self.cti_files:
-            if self.iam:
-                if self.iam.is_acquiring_images:
+            if self.ia:
+                if self.ia.is_acquiring_images:
                     enable = True
         return enable
 
     def action_on_show_attribute_controller(self):
         with QMutexLocker(self.mutex):
-            if self.iam and self.attribute_controller.isHidden():
+            if self.ia and self.attribute_controller.isHidden():
                 self.attribute_controller.show()
                 self.attribute_controller.expand_all()
 
     def is_enabled_on_show_attribute_controller(self):
         enable = False
         if self.cti_files:
-            if self.iam is not None:
+            if self.ia is not None:
                 enable = True
         return enable
 
@@ -568,8 +568,8 @@ class Harvester(QMainWindow):
     def is_enabled_on_toggle_drawing(self):
         enable = False
         if self.cti_files:
-            if self.iam:
-                if self.iam.is_acquiring_images:
+            if self.ia:
+                if self.ia.is_acquiring_images:
                     enable = True
         return enable
 

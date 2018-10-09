@@ -66,6 +66,6 @@ class ComboBox(QComboBox, Observer):
         #
         enable = False
         if self.parent().parent().cti_files:
-            if self.parent().parent().iam is None:
+            if self.parent().parent().ia is None:
                 enable = True
         self.setEnabled(enable)

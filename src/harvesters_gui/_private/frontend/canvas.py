@@ -41,7 +41,7 @@ from harvesters_util.pfnc import is_custom, get_bits_per_pixel, \
 class CanvasBase(app.Canvas):
     def __init__(
             self, *,
-            image_acquisition_manager=None,
+            image_acquirer=None,
             width=640, height=480,
             fps=30.,
             background_color='gray',
@@ -60,7 +60,7 @@ class CanvasBase(app.Canvas):
         )
 
         #
-        self._iam = image_acquisition_manager
+        self._ia = image_acquirer
 
         #
         self._background_color = background_color
@@ -116,7 +116,7 @@ class CanvasBase(app.Canvas):
         try:
             if not self._pause_drawing:
                 # Fetch a buffer.
-                buffer = self.iam.fetch_buffer(timeout_s=0.0001)
+                buffer = self.ia.fetch_buffer(timeout_s=0.0001)
 
                 # Prepare a texture to draw:
                 self._prepare_texture(buffer)
@@ -141,10 +141,10 @@ class CanvasBase(app.Canvas):
 
         except AttributeError:
             # Calling fetch_buffer() raises AttributeError because
-            # the ImageAcquisitionManager object is None.
+            # the ImageAcquirer object is None.
             pass
         except TimeoutException:
-            # We have an ImageAcquisitionManager object but nothing has
+            # We have an ImageAcquirer object but nothing has
             # been fetched, wait for the next round:
             pass
 
@@ -202,14 +202,14 @@ class CanvasBase(app.Canvas):
         self._background_color = color
 
     @property
-    def iam(self):
-        return self._iam
+    def ia(self):
+        return self._ia
 
-    @iam.setter
-    def iam(self, value):
-        self._iam = value
+    @ia.setter
+    def ia(self, value):
+        self._ia = value
         # Register a method which is called at stop_image_acquisition:
-        self._iam.tear_down = self.release_buffers
+        self._ia.tear_down = self.release_buffers
 
     def _prepare_texture(self, buffer):
         raise NotImplementedError
@@ -224,14 +224,14 @@ class Canvas2D(CanvasBase):
 
     def __init__(
             self, *,
-            image_acquisition_manager=None,
+            image_acquirer=None,
             width=640, height=480,
             background_color='gray',
             vsync=True
     ):
         #
         super().__init__(
-            image_acquisition_manager=image_acquisition_manager,
+            image_acquirer=image_acquirer,
             width=width, height=height,
             fps=30.,
             background_color=background_color,
