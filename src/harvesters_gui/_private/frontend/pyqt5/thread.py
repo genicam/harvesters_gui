@@ -28,13 +28,14 @@ from harvesters.core import ThreadBase
 
 
 class _PyQtThread(ThreadBase):
-    def __init__(self, parent=None, mutex=None, worker=None):
+    def __init__(self, parent=None, mutex=None, worker=None, update_cycle_us=1):
         #
         super().__init__(mutex=mutex)
 
         #
         self._thread = _ThreadImpl(
-            parent=parent, base=self, worker=worker
+            parent=parent, base=self, worker=worker,
+            update_cycle_us=update_cycle_us
         )
 
     def _start(self):
@@ -68,13 +69,15 @@ class _PyQtThread(ThreadBase):
 
 
 class _ThreadImpl(QThread):
-    def __init__(self, parent=None, base=None, worker=None):
+    def __init__(self, parent=None, base=None, worker=None,
+                 update_cycle_us=1):
         #
         super().__init__(parent)
 
         #
         self._worker = worker
         self._base = base
+        self._update_cycle_us = update_cycle_us
 
     def stop(self):
         with QMutexLocker(self._base.mutex):
@@ -85,7 +88,7 @@ class _ThreadImpl(QThread):
             if self._worker:
                 self._worker()
                 # Force the current thread to sleep for some microseconds:
-                self.usleep(1)
+                self.usleep(self._update_cycle_us)
 
     def acquire(self):
         return QMutexLocker(self._base.mutex)

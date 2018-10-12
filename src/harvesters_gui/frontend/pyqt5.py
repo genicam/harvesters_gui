@@ -19,12 +19,13 @@
 
 
 # Standard library imports
-from logging import DEBUG
+import datetime
 import os
 import sys
+import time
 
 # Related third party imports
-from PyQt5.QtCore import QMutexLocker, QMutex, pyqtSignal
+from PyQt5.QtCore import QMutexLocker, QMutex, pyqtSignal, QThread
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QMainWindow, QAction, QComboBox, \
     QDesktopWidget, QFileDialog, QDialog, QShortcut, QApplication
@@ -50,7 +51,6 @@ from harvesters_util.logging import get_logger
 
 class Harvester(QMainWindow):
     #
-    _signal_update_statistics = pyqtSignal(str)
     _signal_stop_image_acquisition = pyqtSignal()
 
     def __init__(self, *, vsync=True, logger=None):
@@ -87,8 +87,12 @@ class Harvester(QMainWindow):
         self._widget_attribute_controller = None
 
         #
-        self._signal_update_statistics.connect(self.update_statistics)
         self._signal_stop_image_acquisition.connect(self._stop_image_acquisition)
+        self._thread_statistics_measurement = _PyQtThread(
+            parent=self, mutex=self.mutex,
+            worker=self._worker_update_statistics,
+            update_cycle_us=250000
+        )
 
         #
         self._initialize_widgets()
@@ -243,18 +247,18 @@ class Harvester(QMainWindow):
         observers.append(button_disconnect)
 
         #
-        button_start_acquisition = ActionStartImageAcquisition(
+        button_start_image_acquisition = ActionStartImageAcquisition(
             icon='start_acquisition.png', title='Start Acquisition', parent=self,
             action=self.action_on_start_image_acquisition,
             is_enabled=self.is_enabled_on_start_image_acquisition
         )
         shortcut_key = 'Ctrl+j'
-        button_start_acquisition.setToolTip(
+        button_start_image_acquisition.setToolTip(
             compose_tooltip('Start image acquisition', shortcut_key)
         )
-        button_start_acquisition.setShortcut(shortcut_key)
-        button_start_acquisition.toggle()
-        observers.append(button_start_acquisition)
+        button_start_image_acquisition.setShortcut(shortcut_key)
+        button_start_image_acquisition.toggle()
+        observers.append(button_start_image_acquisition)
 
         #
         button_toggle_drawing = ActionToggleDrawing(
@@ -271,19 +275,19 @@ class Harvester(QMainWindow):
         observers.append(button_toggle_drawing)
 
         #
-        button_stop_acquisition = ActionStopImageAcquisition(
+        button_stop_image_acquisition = ActionStopImageAcquisition(
             icon='stop_acquisition.png', title='Stop Acquisition', parent=self,
             action=self.action_on_stop_image_acquisition,
             is_enabled=self.is_enabled_on_stop_image_acquisition
         )
         shortcut_key = 'Ctrl+l'
-        button_stop_acquisition.setToolTip(
+        button_stop_image_acquisition.setToolTip(
             compose_tooltip('Stop image acquisition', shortcut_key)
         )
-        button_stop_acquisition.setShortcut(shortcut_key)
-        button_stop_acquisition.toggle()
-        observers.append(button_stop_acquisition)
-        self._action_stop_image_acquisition = button_stop_acquisition
+        button_stop_image_acquisition.setShortcut(shortcut_key)
+        button_stop_image_acquisition.toggle()
+        observers.append(button_stop_image_acquisition)
+        self._action_stop_image_acquisition = button_stop_image_acquisition
 
         #
         button_dev_attribute = ActionShowAttributeController(
@@ -337,9 +341,9 @@ class Harvester(QMainWindow):
         button_select_file.add_observer(button_connect)
         button_select_file.add_observer(button_disconnect)
         button_select_file.add_observer(button_dev_attribute)
-        button_select_file.add_observer(button_start_acquisition)
+        button_select_file.add_observer(button_start_image_acquisition)
         button_select_file.add_observer(button_toggle_drawing)
-        button_select_file.add_observer(button_stop_acquisition)
+        button_select_file.add_observer(button_stop_image_acquisition)
         button_select_file.add_observer(self._widget_device_list)
 
         #
@@ -351,9 +355,9 @@ class Harvester(QMainWindow):
         button_connect.add_observer(button_update)
         button_connect.add_observer(button_disconnect)
         button_connect.add_observer(button_dev_attribute)
-        button_connect.add_observer(button_start_acquisition)
+        button_connect.add_observer(button_start_image_acquisition)
         button_connect.add_observer(button_toggle_drawing)
-        button_connect.add_observer(button_stop_acquisition)
+        button_connect.add_observer(button_stop_image_acquisition)
         button_connect.add_observer(self._widget_device_list)
 
         #
@@ -361,22 +365,22 @@ class Harvester(QMainWindow):
         button_disconnect.add_observer(button_update)
         button_disconnect.add_observer(button_connect)
         button_disconnect.add_observer(button_dev_attribute)
-        button_disconnect.add_observer(button_start_acquisition)
+        button_disconnect.add_observer(button_start_image_acquisition)
         button_disconnect.add_observer(button_toggle_drawing)
-        button_disconnect.add_observer(button_stop_acquisition)
+        button_disconnect.add_observer(button_stop_image_acquisition)
         button_disconnect.add_observer(self._widget_device_list)
 
         #
-        button_start_acquisition.add_observer(button_toggle_drawing)
-        button_start_acquisition.add_observer(button_stop_acquisition)
+        button_start_image_acquisition.add_observer(button_toggle_drawing)
+        button_start_image_acquisition.add_observer(button_stop_image_acquisition)
 
         #
-        button_toggle_drawing.add_observer(button_start_acquisition)
-        button_toggle_drawing.add_observer(button_stop_acquisition)
+        button_toggle_drawing.add_observer(button_start_image_acquisition)
+        button_toggle_drawing.add_observer(button_stop_image_acquisition)
 
         #
-        button_stop_acquisition.add_observer(button_start_acquisition)
-        button_stop_acquisition.add_observer(button_toggle_drawing)
+        button_stop_image_acquisition.add_observer(button_start_image_acquisition)
+        button_stop_image_acquisition.add_observer(button_toggle_drawing)
 
         #
         group_gentl_info.addAction(button_select_file)
@@ -387,9 +391,9 @@ class Harvester(QMainWindow):
         group_connection.addAction(button_disconnect)
 
         #
-        group_device.addAction(button_start_acquisition)
+        group_device.addAction(button_start_image_acquisition)
         group_device.addAction(button_toggle_drawing)
-        group_device.addAction(button_stop_acquisition)
+        group_device.addAction(button_stop_image_acquisition)
         group_device.addAction(button_dev_attribute)
 
         #
@@ -446,11 +450,6 @@ class Harvester(QMainWindow):
         self.ia.thread_image_acquisition = _PyQtThread(
             parent=self, mutex=self.mutex
         )
-        self.ia.thread_statistics_measurement = _PyQtThread(
-            parent=self, mutex=self.mutex
-        )
-
-        self.ia.updated_statistics = self._signal_update_statistics
         self.ia.signal_stop_image_acquisition = self._signal_stop_image_acquisition
 
         try:
@@ -535,6 +534,10 @@ class Harvester(QMainWindow):
             if self.canvas.is_pausing:
                 self.canvas.resume_drawing()
         else:
+            # Start statistics measurement:
+            self.ia.statistics.reset()
+            self._thread_statistics_measurement.start()
+
             self.ia.start_image_acquisition()
 
     def is_enabled_on_start_image_acquisition(self):
@@ -547,6 +550,8 @@ class Harvester(QMainWindow):
         return enable
 
     def action_on_stop_image_acquisition(self):
+        # Stop statistics measurement:
+        self._thread_statistics_measurement.stop()
         self.ia.stop_image_acquisition()
         self.canvas.pause_drawing(False)
 
@@ -585,6 +590,26 @@ class Harvester(QMainWindow):
     def action_on_show_about(self):
         self.about.setModal(False)
         self.about.show()
+
+    def _worker_update_statistics(self):
+        #
+        if self.ia:
+            message_config = 'W: {0} x H: {1}, {2}, '.format(
+                self.ia.device.node_map.Width.value,
+                self.ia.device.node_map.Height.value,
+                self.ia.device.node_map.PixelFormat.value
+            )
+
+            message_statistics = '{0:.1f} fps, elapsed {1}, {2} images'.format(
+                self.ia.statistics.fps,
+                str(datetime.timedelta(
+                    seconds=int(self.ia.statistics.elapsed_time_s)
+                )),
+                self.ia.statistics.num_images
+            )
+
+            #
+            self.update_statistics(message_config + message_statistics)
 
 
 class ActionSelectFile(Action):
