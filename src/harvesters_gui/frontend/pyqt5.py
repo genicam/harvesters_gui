@@ -89,7 +89,7 @@ class Harvester(QMainWindow):
         #
         self._signal_stop_image_acquisition.connect(self._stop_image_acquisition)
         self._thread_statistics_measurement = _PyQtThread(
-            parent=self, mutex=self.mutex,
+            parent=self, mutex=self._mutex,
             worker=self._worker_update_statistics,
             update_cycle_us=250000
         )
@@ -145,10 +145,6 @@ class Harvester(QMainWindow):
     @property
     def harvester_core(self):
         return self._harvester_core
-
-    @property
-    def mutex(self):
-        return self._mutex
 
     def _initialize_widgets(self):
         #
@@ -448,7 +444,7 @@ class Harvester(QMainWindow):
 
         #
         self.ia.thread_image_acquisition = _PyQtThread(
-            parent=self, mutex=self.mutex
+            parent=self, mutex=self._mutex
         )
         self.ia.signal_stop_image_acquisition = self._signal_stop_image_acquisition
 
@@ -564,7 +560,7 @@ class Harvester(QMainWindow):
         return enable
 
     def action_on_show_attribute_controller(self):
-        with QMutexLocker(self.mutex):
+        with QMutexLocker(self._mutex):
             if self.ia and self.attribute_controller.isHidden():
                 self.attribute_controller.show()
                 self.attribute_controller.expand_all()
