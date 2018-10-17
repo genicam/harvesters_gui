@@ -560,10 +560,9 @@ class Harvester(QMainWindow):
         return enable
 
     def action_on_show_attribute_controller(self):
-        with QMutexLocker(self._mutex):
-            if self.ia and self.attribute_controller.isHidden():
-                self.attribute_controller.show()
-                self.attribute_controller.expand_all()
+        if self.ia and self.attribute_controller.isHidden():
+            self.attribute_controller.show()
+            self.attribute_controller.expand_all()
 
     def is_enabled_on_show_attribute_controller(self):
         enable = False
