@@ -607,7 +607,6 @@ class Harvester(QMainWindow):
 
             #
             self._signal_update_statistics.emit(message_config + message_statistics)
-            #self.update_statistics(message_config + message_statistics)
 
 
 class ActionSelectFile(Action):
