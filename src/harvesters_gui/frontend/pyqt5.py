@@ -51,6 +51,7 @@ from harvesters_util.logging import get_logger
 
 class Harvester(QMainWindow):
     #
+    _signal_update_statistics = pyqtSignal(str)
     _signal_stop_image_acquisition = pyqtSignal()
 
     def __init__(self, *, vsync=True, logger=None):
@@ -87,6 +88,7 @@ class Harvester(QMainWindow):
         self._widget_attribute_controller = None
 
         #
+        self._signal_update_statistics.connect(self.update_statistics)
         self._signal_stop_image_acquisition.connect(self._stop_image_acquisition)
         self._thread_statistics_measurement = _PyQtThread(
             parent=self, mutex=self._mutex,
@@ -604,7 +606,8 @@ class Harvester(QMainWindow):
             )
 
             #
-            self.update_statistics(message_config + message_statistics)
+            self._signal_update_statistics.emit(message_config + message_statistics)
+            #self.update_statistics(message_config + message_statistics)
 
 
 class ActionSelectFile(Action):
