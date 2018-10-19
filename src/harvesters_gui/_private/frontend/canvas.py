@@ -227,13 +227,13 @@ class Canvas2D(CanvasBase):
             image_acquirer=None,
             width=640, height=480,
             background_color='gray',
-            vsync=True
+            vsync=True, fps=30.
     ):
         #
         super().__init__(
             image_acquirer=image_acquirer,
             width=width, height=height,
-            fps=30.,
+            fps=fps,
             background_color=background_color,
             vsync=vsync
         )

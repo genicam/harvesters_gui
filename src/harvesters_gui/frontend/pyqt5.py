@@ -54,7 +54,7 @@ class Harvester(QMainWindow):
     _signal_update_statistics = pyqtSignal(str)
     _signal_stop_image_acquisition = pyqtSignal()
 
-    def __init__(self, *, vsync=True, logger=None):
+    def __init__(self, *, vsync=True, logger=None, fps=30.):
         #
         self._logger = logger or get_logger(name='harvesters')
 
@@ -70,7 +70,7 @@ class Harvester(QMainWindow):
         )
         self._ia = None  # Image Acquirer
 
-        self._widget_canvas = Canvas2D(vsync=vsync)
+        self._widget_canvas = Canvas2D(vsync=vsync, fps=fps)
         self._widget_canvas.create_native()
         self._widget_canvas.native.setParent(self)
 
@@ -712,6 +712,6 @@ class ActionShowAbout(Action):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    harvester = Harvester(vsync=True)
+    harvester = Harvester(vsync=True, fps=30.)
     harvester.show()
     sys.exit(app.exec_())
