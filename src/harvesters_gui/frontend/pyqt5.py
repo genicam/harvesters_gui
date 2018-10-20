@@ -110,9 +110,13 @@ class Harvester(QMainWindow):
         self.statusBar().showMessage(message)
 
     def closeEvent(self, QCloseEvent):
-        # Stop image acquisition before closing:
-        self.attribute_controller.close()
-        self._harvester_core.reset()
+        #
+        if self._widget_attribute_controller:
+            self._widget_attribute_controller.close()
+
+        #
+        if self._harvester_core:
+            self._harvester_core.reset()
 
     def __enter__(self):
         return self
