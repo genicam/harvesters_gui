@@ -40,9 +40,7 @@ class ComboBoxDeviceList(QComboBox, Observer):
             self.clear()
             separator = '::'
             for d in self.parent().parent().harvester_core.device_info_list:
-                name = d.parent.parent.vendor  # i.e., system.vendor
-                name += separator
-                name += d.vendor
+                name = d.vendor
                 name += separator
                 name += d.model
                 if d.serial_number:
