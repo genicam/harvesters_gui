@@ -42,7 +42,8 @@ from harvesters_gui._private.frontend.helper import compose_tooltip
 from harvesters_gui._private.frontend.pyqt5.about import About
 from harvesters_gui._private.frontend.pyqt5.action import Action
 from harvesters_gui._private.frontend.pyqt5.attribute_controller import AttributeController
-from harvesters_gui._private.frontend.pyqt5.device_list import ComboBox
+from harvesters_gui._private.frontend.pyqt5.device_list import ComboBoxDeviceList
+from harvesters_gui._private.frontend.pyqt5.display_rate_list import ComboBoxDisplayRateList
 from harvesters_gui._private.frontend.pyqt5.helper import get_system_font
 from harvesters_gui._private.frontend.pyqt5.icon import Icon
 from harvesters_gui._private.frontend.pyqt5.thread import _PyQtThread
@@ -54,7 +55,7 @@ class Harvester(QMainWindow):
     _signal_update_statistics = pyqtSignal(str)
     _signal_stop_image_acquisition = pyqtSignal()
 
-    def __init__(self, *, vsync=True, logger=None, fps=30.):
+    def __init__(self, *, vsync=True, logger=None):
         #
         self._logger = logger or get_logger(name='harvesters')
 
@@ -70,7 +71,8 @@ class Harvester(QMainWindow):
         )
         self._ia = None  # Image Acquirer
 
-        self._widget_canvas = Canvas2D(vsync=vsync, fps=fps)
+        #
+        self._widget_canvas = Canvas2D(vsync=vsync)
         self._widget_canvas.create_native()
         self._widget_canvas.native.setParent(self)
 
@@ -184,7 +186,10 @@ class Harvester(QMainWindow):
         group_gentl_info = self.addToolBar('GenTL Information')
         group_connection = self.addToolBar('Connection')
         group_device = self.addToolBar('Image Acquisition')
+        group_display = self.addToolBar('Display')
         group_help = self.addToolBar('Help')
+
+        # Create buttons:
 
         #
         button_select_file = ActionSelectFile(
@@ -305,20 +310,10 @@ class Harvester(QMainWindow):
         button_dev_attribute.toggle()
         observers.append(button_dev_attribute)
 
-        #
-        self._widget_about = About(self)
-        button_about = ActionShowAbout(
-            icon='about.png', title='About', parent=self,
-            action=self.action_on_show_about
-        )
-        button_about.setToolTip(
-            compose_tooltip('Show information about Harvester')
-        )
-        button_about.toggle()
-        observers.append(button_about)
+        # Create widgets to add:
 
         #
-        self._widget_device_list = ComboBox(self)
+        self._widget_device_list = ComboBoxDeviceList(self)
         self._widget_device_list.setSizeAdjustPolicy(
             QComboBox.AdjustToContents
         )
@@ -337,6 +332,40 @@ class Harvester(QMainWindow):
             self._widget_device_list.addItem(d)
         group_connection.addWidget(self._widget_device_list)
         observers.append(self._widget_device_list)
+
+        #
+        self._widget_display_rates = ComboBoxDisplayRateList(self)
+        self._widget_display_rates.setSizeAdjustPolicy(
+            QComboBox.AdjustToContents
+        )
+        shortcut_key = 'Ctrl+Shift+r'
+        shortcut = QShortcut(QKeySequence(shortcut_key), self)
+
+        def show_popup():
+            self._widget_display_rates.showPopup()
+
+        shortcut.activated.connect(show_popup)
+        self._widget_display_rates.setToolTip(
+            compose_tooltip('Select a display rate', shortcut_key)
+        )
+        observers.append(self._widget_display_rates)
+        self._widget_display_rates.setEnabled(True)
+        group_display.addWidget(self._widget_display_rates)
+        observers.append(self._widget_display_rates)
+
+        #
+        self._widget_about = About(self)
+        button_about = ActionShowAbout(
+            icon='about.png', title='About', parent=self,
+            action=self.action_on_show_about
+        )
+        button_about.setToolTip(
+            compose_tooltip('Show information about Harvester')
+        )
+        button_about.toggle()
+        observers.append(button_about)
+
+        # Configure observers:
 
         #
         button_select_file.add_observer(button_update)
@@ -384,6 +413,8 @@ class Harvester(QMainWindow):
         button_stop_image_acquisition.add_observer(button_start_image_acquisition)
         button_stop_image_acquisition.add_observer(button_toggle_drawing)
 
+        # Add buttons to groups:
+
         #
         group_gentl_info.addAction(button_select_file)
         group_gentl_info.addAction(button_update)
@@ -401,6 +432,9 @@ class Harvester(QMainWindow):
         #
         group_help.addAction(button_about)
 
+        # Connect handler functions:
+
+        #
         group_gentl_info.actionTriggered[QAction].connect(
             self.on_button_clicked_action
         )
@@ -408,6 +442,9 @@ class Harvester(QMainWindow):
             self.on_button_clicked_action
         )
         group_device.actionTriggered[QAction].connect(
+            self.on_button_clicked_action
+        )
+        group_display.actionTriggered[QAction].connect(
             self.on_button_clicked_action
         )
         group_help.actionTriggered[QAction].connect(
@@ -716,6 +753,6 @@ class ActionShowAbout(Action):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    harvester = Harvester(vsync=True, fps=30.)
+    harvester = Harvester(vsync=True)
     harvester.show()
     sys.exit(app.exec_())

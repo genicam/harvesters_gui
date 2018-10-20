@@ -43,7 +43,7 @@ class CanvasBase(app.Canvas):
             self, *,
             image_acquirer=None,
             width=640, height=480,
-            fps=30.,
+            display_rate=30.,
             background_color='gray',
             vsync=True
     ):
@@ -78,10 +78,23 @@ class CanvasBase(app.Canvas):
         self._origin = [0, 0]
 
         #
-        self._timer = app.Timer(1./fps, connect=self.update, start=True)
+        self._display_rate = display_rate
+        self._timer = app.Timer(
+            1. / self._display_rate, connect=self.update, start=True
+        )
 
         #
         self._buffers = []
+
+    @property
+    def display_rate(self):
+        return self._display_rate
+
+    @display_rate.setter
+    def display_rate(self, value):
+        self._display_rate = value
+        self._timer.stop()
+        self._timer.start(interval=1./self._display_rate)
 
     def set_canvas_size(self, width, height):
         #
@@ -227,13 +240,13 @@ class Canvas2D(CanvasBase):
             image_acquirer=None,
             width=640, height=480,
             background_color='gray',
-            vsync=True, fps=30.
+            vsync=True, display_rate=30.
     ):
         #
         super().__init__(
             image_acquirer=image_acquirer,
             width=width, height=height,
-            fps=fps,
+            display_rate=display_rate,
             background_color=background_color,
             vsync=vsync
         )

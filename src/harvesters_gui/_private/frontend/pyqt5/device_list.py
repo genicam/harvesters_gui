@@ -30,7 +30,7 @@ from harvesters._private.core.observer import Observer
 from harvesters_gui._private.frontend.pyqt5.helper import get_system_font
 
 
-class ComboBox(QComboBox, Observer):
+class ComboBoxDeviceList(QComboBox, Observer):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setFont(get_system_font())
