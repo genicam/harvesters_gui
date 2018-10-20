@@ -631,25 +631,27 @@ class Harvester(QMainWindow):
 
     def _worker_update_statistics(self):
         #
-        if self.ia:
-            message_config = 'W: {0} x H: {1}, {2}, '.format(
-                self.ia.device.node_map.Width.value,
-                self.ia.device.node_map.Height.value,
-                self.ia.device.node_map.PixelFormat.value
-            )
+        if self.ia is None:
+            return
 
-            message_statistics = '{0:.1f} fps, elapsed {1}, {2} images'.format(
-                self.ia.statistics.fps,
-                str(datetime.timedelta(
-                    seconds=int(self.ia.statistics.elapsed_time_s)
-                )),
-                self.ia.statistics.num_images
-            )
-
-            #
-            self._signal_update_statistics.emit(
-                message_config + message_statistics
-            )
+        #
+        message_config = 'W: {0} x H: {1}, {2}, '.format(
+            self.ia.device.node_map.Width.value,
+            self.ia.device.node_map.Height.value,
+            self.ia.device.node_map.PixelFormat.value
+        )
+        #
+        message_statistics = '{0:.1f} fps, elapsed {1}, {2} images'.format(
+            self.ia.statistics.fps,
+            str(datetime.timedelta(
+                seconds=int(self.ia.statistics.elapsed_time_s)
+            )),
+            self.ia.statistics.num_images
+        )
+        #
+        self._signal_update_statistics.emit(
+            message_config + message_statistics
+        )
 
 
 class ActionSelectFile(Action):
