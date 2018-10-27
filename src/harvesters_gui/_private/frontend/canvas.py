@@ -129,7 +129,7 @@ class CanvasBase(app.Canvas):
         try:
             if not self._pause_drawing:
                 # Fetch a buffer.
-                buffer = self.ia.fetch_buffer(timeout_s=0.0001)
+                buffer = self.ia.fetch_buffer(timeout=0.0001)
 
                 # Prepare a texture to draw:
                 self._prepare_texture(buffer)
