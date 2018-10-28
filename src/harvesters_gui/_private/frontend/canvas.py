@@ -34,8 +34,11 @@ from genicam2.gentl import TimeoutException
 
 # Local application/library specific imports
 from harvesters._private.core.helper.system import is_running_on_macos
-from harvesters_util.pfnc import is_custom, get_bits_per_pixel, \
-    component_bgr_formats
+from harvesters.util.pfnc import is_custom, get_bits_per_pixel, \
+    bgr_formats
+from harvesters.util.pfnc import mono_location_formats, \
+    rgb_formats, bgr_formats, \
+    rgba_formats, bgra_formats
 
 
 class CanvasBase(app.Canvas):
@@ -331,22 +334,25 @@ class Canvas2D(CanvasBase):
 
         # Set the image as the texture of our canvas.
         if buffer:
+            #
+            payload = buffer.payload
+            component = payload.components[0]
+            width = component.width
+            height = component.height
+
             # Update the canvas size if needed.
-            self.set_canvas_size(
-                buffer.payload.components[0].width,
-                buffer.payload.components[0].height
-            )
+            self.set_canvas_size(width, height)
 
             #
             exponent = 0
             data_format = None
 
             #
-            data_format_value = buffer.payload.components[0].data_format_value
+            data_format_value = component.data_format_value
             if is_custom(data_format_value):
                 update = False
             else:
-                data_format = buffer.payload.components[0].data_format
+                data_format = component.data_format
                 bpp = get_bits_per_pixel(data_format)
                 if bpp is not None:
                     exponent = bpp - 8
@@ -354,8 +360,33 @@ class Canvas2D(CanvasBase):
                     update = False
 
             if update:
+                # Reshape the image so that it can be drawn on the
+                # VisPy canvas:
+                if data_format in mono_location_formats:
+                    # It's not necessary to reshape it because its 2D pixel
+                    # location representation is exactly the one we needed
+                    # to draw the image on our canvas:
+                    content = component.represent_2d_pixel_location()
+                else:
+                    # The image requires you to reshape it to draw it on the
+                    # canvas:
+                    if data_format in rgb_formats or \
+                            data_format in rgba_formats or \
+                            data_format in bgr_formats or \
+                            data_format in bgra_formats:
+                        #
+                        content = component.data.reshape(
+                            height, width,
+                            int(component.num_components_per_pixel)
+                        )
+                        #
+                        if data_format in bgr_formats:
+                            # Swap every R and B:
+                            content = content[:, :, ::-1]
+                    else:
+                        return
+
                 # Convert each data to an 8bit.
-                content = buffer.payload.components[0].data
                 if exponent > 0:
                     # The following code may affect to the rendering
                     # performance:
@@ -363,10 +394,6 @@ class Canvas2D(CanvasBase):
 
                     # Then cast each array element to an uint8:
                     content = content.astype(np.uint8)
-
-                if data_format in component_bgr_formats:
-                    # Swap every R and B:
-                    content = content[:, :, ::-1]
 
                 self._program['texture'] = content
 
