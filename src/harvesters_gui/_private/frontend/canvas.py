@@ -36,6 +36,8 @@ from genicam2.gentl import TimeoutException
 from harvesters._private.core.helper.system import is_running_on_macos
 from harvesters_util.pfnc import is_custom, get_bits_per_pixel, \
     component_bgr_formats
+from harvesters_util.pfnc import mono_location_formats, \
+    lmn_444_location_formats
 
 
 class CanvasBase(app.Canvas):
@@ -331,22 +333,23 @@ class Canvas2D(CanvasBase):
 
         # Set the image as the texture of our canvas.
         if buffer:
+            #
+            payload = buffer.payload
+            component = payload.components[0]
+
             # Update the canvas size if needed.
-            self.set_canvas_size(
-                buffer.payload.components[0].width,
-                buffer.payload.components[0].height
-            )
+            self.set_canvas_size(component.width, component.height)
 
             #
             exponent = 0
             data_format = None
 
             #
-            data_format_value = buffer.payload.components[0].data_format_value
+            data_format_value = component.data_format_value
             if is_custom(data_format_value):
                 update = False
             else:
-                data_format = buffer.payload.components[0].data_format
+                data_format = component.data_format
                 bpp = get_bits_per_pixel(data_format)
                 if bpp is not None:
                     exponent = bpp - 8
@@ -354,8 +357,19 @@ class Canvas2D(CanvasBase):
                     update = False
 
             if update:
-                #
-                content = buffer.payload.components[0].represent_2d_pixel_location()
+                if data_format in mono_location_formats:
+                    content = component.represent_2d_pixel_location()
+                else:
+                    if data_format in lmn_444_location_formats:
+                        content = component.data.reshape(
+                            component.height, component.width,
+                            int(component.num_components_per_pixel)
+                        )
+                        if data_format in component_bgr_formats:
+                            # Swap every R and B:
+                            content = content[:, :, ::-1]
+                    else:
+                        content = None
 
                 # Convert each data to an 8bit.
                 if exponent > 0:
@@ -365,10 +379,6 @@ class Canvas2D(CanvasBase):
 
                     # Then cast each array element to an uint8:
                     content = content.astype(np.uint8)
-
-                if data_format in component_bgr_formats:
-                    # Swap every R and B:
-                    content = content[:, :, ::-1]
 
                 self._program['texture'] = content
 
