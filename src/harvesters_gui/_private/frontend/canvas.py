@@ -37,7 +37,8 @@ from harvesters._private.core.helper.system import is_running_on_macos
 from harvesters_util.pfnc import is_custom, get_bits_per_pixel, \
     component_bgr_formats
 from harvesters_util.pfnc import mono_location_formats, \
-    lmn_444_location_formats, lmno_4444_location_formats
+    component_rgb_formats, component_bgr_formats, \
+    component_rgba_formats, component_bgra_formats
 
 
 class CanvasBase(app.Canvas):
@@ -367,8 +368,11 @@ class Canvas2D(CanvasBase):
                 else:
                     # The image requires you to reshape it to draw it on the
                     # canvas:
-                    if data_format in lmn_444_location_formats or \
-                            data_format in lmno_4444_location_formats:
+                    if data_format in component_rgb_formats or \
+                            data_format in component_rgba_formats or \
+                            data_format in component_bgr_formats or \
+                            data_format in component_bgra_formats:
+                        #
                         content = component.data.reshape(
                             total_height, total_width,
                             int(component.num_components_per_pixel)
@@ -377,7 +381,7 @@ class Canvas2D(CanvasBase):
                             # Swap every R and B:
                             content = content[:, :, ::-1]
                     else:
-                        content = None
+                        return
 
                 # Convert each data to an 8bit.
                 if exponent > 0:
