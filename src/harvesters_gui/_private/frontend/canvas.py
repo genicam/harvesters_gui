@@ -35,10 +35,10 @@ from genicam2.gentl import TimeoutException
 # Local application/library specific imports
 from harvesters._private.core.helper.system import is_running_on_macos
 from harvesters_util.pfnc import is_custom, get_bits_per_pixel, \
-    component_bgr_formats
+    bgr_formats
 from harvesters_util.pfnc import mono_location_formats, \
-    component_rgb_formats, component_bgr_formats, \
-    component_rgba_formats, component_bgra_formats
+    rgb_formats, bgr_formats, \
+    rgba_formats, bgra_formats
 
 
 class CanvasBase(app.Canvas):
@@ -368,16 +368,16 @@ class Canvas2D(CanvasBase):
                 else:
                     # The image requires you to reshape it to draw it on the
                     # canvas:
-                    if data_format in component_rgb_formats or \
-                            data_format in component_rgba_formats or \
-                            data_format in component_bgr_formats or \
-                            data_format in component_bgra_formats:
+                    if data_format in rgb_formats or \
+                            data_format in rgba_formats or \
+                            data_format in bgr_formats or \
+                            data_format in bgra_formats:
                         #
                         content = component.data.reshape(
                             total_height, total_width,
                             int(component.num_components_per_pixel)
                         )
-                        if data_format in component_bgr_formats:
+                        if data_format in bgr_formats:
                             # Swap every R and B:
                             content = content[:, :, ::-1]
                     else:
