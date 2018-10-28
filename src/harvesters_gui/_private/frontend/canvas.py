@@ -378,6 +378,7 @@ class Canvas2D(CanvasBase):
                             height, width,
                             int(component.num_components_per_pixel)
                         )
+                        #
                         if data_format in bgr_formats:
                             # Swap every R and B:
                             content = content[:, :, ::-1]
