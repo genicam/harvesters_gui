@@ -47,7 +47,7 @@ from harvesters_gui._private.frontend.pyqt5.display_rate_list import ComboBoxDis
 from harvesters_gui._private.frontend.pyqt5.helper import get_system_font
 from harvesters_gui._private.frontend.pyqt5.icon import Icon
 from harvesters_gui._private.frontend.pyqt5.thread import _PyQtThread
-from harvesters_util.logging import get_logger
+from harvesters.util.logging import get_logger
 
 
 class Harvester(QMainWindow):

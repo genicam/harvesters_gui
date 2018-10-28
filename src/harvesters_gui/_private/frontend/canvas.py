@@ -34,9 +34,9 @@ from genicam2.gentl import TimeoutException
 
 # Local application/library specific imports
 from harvesters._private.core.helper.system import is_running_on_macos
-from harvesters_util.pfnc import is_custom, get_bits_per_pixel, \
+from harvesters.util.pfnc import is_custom, get_bits_per_pixel, \
     bgr_formats
-from harvesters_util.pfnc import mono_location_formats, \
+from harvesters.util.pfnc import mono_location_formats, \
     rgb_formats, bgr_formats, \
     rgba_formats, bgra_formats
 
