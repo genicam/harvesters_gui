@@ -360,7 +360,8 @@ class Canvas2D(CanvasBase):
                     update = False
 
             if update:
-                # Reshape the image so that it can be drawn on the canvas:
+                # Reshape the image so that it can be drawn on the
+                # VisPy canvas:
                 if data_format in mono_location_formats:
                     # It's not necessary to reshape it because its 2D pixel
                     # location representation is exactly needed to draw:
