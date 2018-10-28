@@ -336,9 +336,11 @@ class Canvas2D(CanvasBase):
             #
             payload = buffer.payload
             component = payload.components[0]
+            total_width = component.width + component.x_padding
+            total_height = component.height + component.y_padding
 
             # Update the canvas size if needed.
-            self.set_canvas_size(component.width, component.height)
+            self.set_canvas_size(total_width, total_height)
 
             #
             exponent = 0
@@ -367,7 +369,7 @@ class Canvas2D(CanvasBase):
                     if data_format in lmn_444_location_formats or \
                             data_format in lmno_4444_location_formats:
                         content = component.data.reshape(
-                            component.height, component.width,
+                            total_height, total_width,
                             int(component.num_components_per_pixel)
                         )
                         if data_format in component_bgr_formats:
