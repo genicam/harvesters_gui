@@ -37,7 +37,7 @@ from harvesters._private.core.helper.system import is_running_on_macos
 from harvesters_util.pfnc import is_custom, get_bits_per_pixel, \
     component_bgr_formats
 from harvesters_util.pfnc import mono_location_formats, \
-    lmn_444_location_formats
+    lmn_444_location_formats, lmno_4444_location_formats
 
 
 class CanvasBase(app.Canvas):
@@ -360,7 +360,8 @@ class Canvas2D(CanvasBase):
                 if data_format in mono_location_formats:
                     content = component.represent_2d_pixel_location()
                 else:
-                    if data_format in lmn_444_location_formats:
+                    if data_format in lmn_444_location_formats or \
+                            data_format in lmno_4444_location_formats:
                         content = component.data.reshape(
                             component.height, component.width,
                             int(component.num_components_per_pixel)
