@@ -354,8 +354,10 @@ class Canvas2D(CanvasBase):
                     update = False
 
             if update:
+                #
+                content = buffer.payload.components[0].represent_2d_pixel_location()
+
                 # Convert each data to an 8bit.
-                content = buffer.payload.components[0].data
                 if exponent > 0:
                     # The following code may affect to the rendering
                     # performance:
