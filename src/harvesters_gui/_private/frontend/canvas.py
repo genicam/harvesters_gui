@@ -337,11 +337,11 @@ class Canvas2D(CanvasBase):
             #
             payload = buffer.payload
             component = payload.components[0]
-            total_width = component.width + component.x_padding
-            total_height = component.height + component.y_padding
+            width = component.width
+            height = component.height
 
             # Update the canvas size if needed.
-            self.set_canvas_size(total_width, total_height)
+            self.set_canvas_size(width, height)
 
             #
             exponent = 0
@@ -374,7 +374,7 @@ class Canvas2D(CanvasBase):
                             data_format in bgra_formats:
                         #
                         content = component.data.reshape(
-                            total_height, total_width,
+                            height, width,
                             int(component.num_components_per_pixel)
                         )
                         if data_format in bgr_formats:
