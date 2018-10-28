@@ -16,6 +16,12 @@
 .. contents:: Table of Contents
     :depth: 2
 
+#############
+Announcements
+#############
+
+- **Version 0.1.0**: Note that this version will be deprecated and the following versions will be incompatible with any of 0.1.n versions.
+
 ###############
 About Harvester
 ###############
