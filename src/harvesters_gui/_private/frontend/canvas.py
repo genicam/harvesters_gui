@@ -358,8 +358,12 @@ class Canvas2D(CanvasBase):
 
             if update:
                 if data_format in mono_location_formats:
+                    # It's not necessary to reshape it because its 2D pixel
+                    # location representation is exactly needed to draw:
                     content = component.represent_2d_pixel_location()
                 else:
+                    # The image requires you to reshape it to draw it on the
+                    # canvas:
                     if data_format in lmn_444_location_formats or \
                             data_format in lmno_4444_location_formats:
                         content = component.data.reshape(
