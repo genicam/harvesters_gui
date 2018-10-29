@@ -366,7 +366,7 @@ class Canvas2D(CanvasBase):
                     # It's not necessary to reshape it because its 2D pixel
                     # location representation is exactly the one we needed
                     # to draw the image on our canvas:
-                    content = component.represent_2d_pixel_location()
+                    content = component.represent_pixel_location()
                 else:
                     # The image requires you to reshape it to draw it on the
                     # canvas:
