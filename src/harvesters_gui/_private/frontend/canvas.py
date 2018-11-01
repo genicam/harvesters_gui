@@ -38,7 +38,8 @@ from harvesters.util.pfnc import is_custom, get_bits_per_pixel, \
     bgr_formats
 from harvesters.util.pfnc import mono_location_formats, \
     rgb_formats, bgr_formats, \
-    rgba_formats, bgra_formats
+    rgba_formats, bgra_formats, \
+    bayer_location_formats
 
 
 class CanvasBase(app.Canvas):
@@ -362,7 +363,8 @@ class Canvas2D(CanvasBase):
             if update:
                 # Reshape the image so that it can be drawn on the
                 # VisPy canvas:
-                if data_format in mono_location_formats:
+                if data_format in mono_location_formats or \
+                        data_format in bayer_location_formats:
                     # It's not necessary to reshape it because its 2D pixel
                     # location representation is exactly the one we needed
                     # to draw the image on our canvas:
