@@ -591,7 +591,16 @@ class Harvester(QMainWindow):
     def action_on_stop_image_acquisition(self):
         # Stop statistics measurement:
         self._thread_statistics_measurement.stop()
+
+        # Release the preserved buffers, which the we kept chunk data alive,
+        # before stopping image acquisition. Otherwise the preserved buffers
+        # will be dangling after stopping image acquisition:
+        self.canvas.release_buffers()
+
+        # Then we stop image acquisition:
         self.ia.stop_image_acquisition()
+
+        # Initialize the drawing state:
         self.canvas.pause_drawing(False)
 
     def is_enabled_on_stop_image_acquisition(self):

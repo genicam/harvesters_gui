@@ -225,8 +225,6 @@ class CanvasBase(app.Canvas):
     @ia.setter
     def ia(self, value):
         self._ia = value
-        # Register a method which is called at stop_image_acquisition:
-        self._ia.tear_down = self.release_buffers
 
     def _prepare_texture(self, buffer):
         raise NotImplementedError
