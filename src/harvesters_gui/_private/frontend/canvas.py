@@ -363,10 +363,9 @@ class Canvas2D(CanvasBase):
                 # VisPy canvas:
                 if data_format in mono_location_formats or \
                         data_format in bayer_location_formats:
-                    # It's not necessary to reshape it because its 2D pixel
-                    # location representation is exactly the one we needed
-                    # to draw the image on our canvas:
-                    content = component.represent_pixel_location()
+                    # Reshape the 1D NumPy array into a 2D so that VisPy
+                    # can display it as a mono image:
+                    content = component.data.reshape(height, width)
                 else:
                     # The image requires you to reshape it to draw it on the
                     # canvas:
@@ -374,14 +373,16 @@ class Canvas2D(CanvasBase):
                             data_format in rgba_formats or \
                             data_format in bgr_formats or \
                             data_format in bgra_formats:
-                        #
+                        # Reshape the 1D NumPy array into a 2D so that VisPy
+                        # can display it as an RGB image:
                         content = component.data.reshape(
                             height, width,
                             int(component.num_components_per_pixel)
                         )
                         #
                         if data_format in bgr_formats:
-                            # Swap every R and B:
+                            # Swap every R and B so that VisPy can display
+                            # it as an RGB image:
                             content = content[:, :, ::-1]
                     else:
                         return
