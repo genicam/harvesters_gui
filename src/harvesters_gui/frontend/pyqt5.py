@@ -473,6 +473,8 @@ class Harvester(QMainWindow):
             self._ia = self.harvester_core.create_image_acquirer(
                 self.device_list.currentIndex()
             )
+            # We want to hold one buffer to keep the chunk data alive:
+            self._ia.num_buffers += 1
         except (
             NotInitializedException, InvalidHandleException,
             InvalidIdException, ResourceInUseException,
