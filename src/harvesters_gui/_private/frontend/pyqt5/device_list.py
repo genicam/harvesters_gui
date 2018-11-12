@@ -43,20 +43,25 @@ class ComboBoxDeviceList(QComboBox, Observer):
                 name = d.vendor
                 name += separator
                 name += d.model
-                if d.serial_number:
-                    name += separator
-                    name += d.serial_number
+
+                try:
+                    _ = d.serial_number
+                except:  # We know it's too broad:
+                    pass
+                else:
+                    if d.serial_number:
+                        name += separator
+                        name += d.serial_number
+
                 try:
                     _ = d.user_defined_name
-                except (
-                        NotImplementedException, NotAvailableException,
-                        InvalidParameterException,
-                ) as e:
+                except:  # We know it's too broad:
                     pass
                 else:
                     if d.user_defined_name != '':
                         name += separator
                         name += d.user_defined_name
+
                 self.addItem(name)
         #
         self.parent().parent().harvester_core.has_revised_device_info_list = False
