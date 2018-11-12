@@ -49,7 +49,7 @@ class ComboBoxDeviceList(QComboBox, Observer):
                 except:  # We know it's too broad:
                     pass
                 else:
-                    if d.serial_number:
+                    if d.serial_number != '':
                         name += separator
                         name += d.serial_number
 
