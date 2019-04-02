@@ -46,7 +46,7 @@ if sys.version_info in supported_versions:
 with open('README.rst', 'r',encoding='utf-8_sig') as fh:
     __doc__ = fh.read()
 
-description = 'Graphical user interfce of Harvester (Maintained by volunteers of the official GenICam committee)'
+description = 'Graphical user interfce of Harvester'
 
 # Determine the base directory:
 base_dir = os.path.dirname(__file__)
