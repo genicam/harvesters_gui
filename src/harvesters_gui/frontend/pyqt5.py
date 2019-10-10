@@ -35,6 +35,9 @@ from genicam2.gentl import NotInitializedException, InvalidHandleException, \
     InvalidParameterException, NotImplementedException, \
     AccessDeniedException
 
+
+from PIL import Image
+
 # Local application/library specific imports
 from harvesters.core import Harvester as HarvesterCore
 from harvesters_gui._private.frontend.canvas import Canvas2D
@@ -186,6 +189,7 @@ class Harvester(QMainWindow):
         group_gentl_info = self.addToolBar('GenTL Information')
         group_connection = self.addToolBar('Connection')
         group_device = self.addToolBar('Image Acquisition')
+        group_saving = self.addToolBar('Image Saving')
         group_display = self.addToolBar('Display')
         group_help = self.addToolBar('Help')
 
@@ -297,6 +301,46 @@ class Harvester(QMainWindow):
         self._action_stop_image_acquisition = button_stop_image_acquisition
 
         #
+        button_save_video = ActionSaveVideo(
+            icon='record_off.png', title='SaveVideo', parent=self,
+            action=self.action_on_save_video,
+            is_enabled=self.is_enabled_on_recording
+        )
+        shortcut_key = 'Ctrl+v'
+        button_save_video.setToolTip(
+            compose_tooltip('Toggle saving all acquired images (even when drawing is paused)', shortcut_key)
+        )
+        button_save_video.setShortcut(shortcut_key)
+        button_save_video.toggle()
+        observers.append(button_save_video)
+        self.button_save_video = button_save_video
+        #
+        button_snapshot = ActionSnapshot(
+            icon='snapshot.png', title='SaveSnapshot', parent=self,
+            action=self.action_on_snapshot,
+            is_enabled=self.is_enabled_on_recording
+        )
+        shortcut_key = 'Ctrl+s'
+        button_snapshot.setToolTip(
+            compose_tooltip('Save the current image', shortcut_key)
+        )
+        button_snapshot.setShortcut(shortcut_key)
+        button_snapshot.toggle()
+        observers.append(button_snapshot)
+        #
+        button_save_path  = ActionSavePath(
+            icon='open_file.png', title='SavePath', parent=self,
+            action=self.action_on_save_path,
+            is_enabled=self.is_enabled_on_recording
+        )
+        shortcut_key = 'Ctrl+p'
+        button_save_path.setToolTip(
+            compose_tooltip('Choose where images are saved', shortcut_key)
+        )
+        button_save_path.setShortcut(shortcut_key)
+        button_save_path.toggle()
+        observers.append(button_save_path)
+
         button_dev_attribute = ActionShowAttributeController(
             icon='device_attribute.png', title='Device Attribute', parent=self,
             action=self.action_on_show_attribute_controller,
@@ -317,6 +361,8 @@ class Harvester(QMainWindow):
         self._widget_device_list.setSizeAdjustPolicy(
             QComboBox.AdjustToContents
         )
+        self._widget_device_list.setMaximumWidth(150)
+
         shortcut_key = 'Ctrl+Shift+d'
         shortcut = QShortcut(QKeySequence(shortcut_key), self)
 
@@ -375,7 +421,10 @@ class Harvester(QMainWindow):
         button_select_file.add_observer(button_start_image_acquisition)
         button_select_file.add_observer(button_toggle_drawing)
         button_select_file.add_observer(button_stop_image_acquisition)
+        button_select_file.add_observer(button_save_video)
         button_select_file.add_observer(self._widget_device_list)
+        button_connect.add_observer(button_save_path)
+        button_connect.add_observer(button_snapshot)
 
         #
         button_update.add_observer(self._widget_device_list)
@@ -390,6 +439,9 @@ class Harvester(QMainWindow):
         button_connect.add_observer(button_toggle_drawing)
         button_connect.add_observer(button_stop_image_acquisition)
         button_connect.add_observer(self._widget_device_list)
+        button_connect.add_observer(button_save_video)
+        button_connect.add_observer(button_save_path)
+        button_connect.add_observer(button_snapshot)
 
         #
         button_disconnect.add_observer(button_select_file)
@@ -400,6 +452,9 @@ class Harvester(QMainWindow):
         button_disconnect.add_observer(button_toggle_drawing)
         button_disconnect.add_observer(button_stop_image_acquisition)
         button_disconnect.add_observer(self._widget_device_list)
+        button_disconnect.add_observer(button_save_video)
+        button_disconnect.add_observer(button_save_path)
+        button_disconnect.add_observer(button_snapshot)
 
         #
         button_start_image_acquisition.add_observer(button_toggle_drawing)
@@ -430,6 +485,11 @@ class Harvester(QMainWindow):
         group_device.addAction(button_dev_attribute)
 
         #
+        group_saving.addAction(button_save_path)
+        group_saving.addAction(button_snapshot)
+        group_saving.addAction(button_save_video)
+
+        #
         group_help.addAction(button_about)
 
         # Connect handler functions:
@@ -442,6 +502,9 @@ class Harvester(QMainWindow):
             self.on_button_clicked_action
         )
         group_device.actionTriggered[QAction].connect(
+            self.on_button_clicked_action
+        )
+        group_saving.actionTriggered[QAction].connect(
             self.on_button_clicked_action
         )
         group_display.actionTriggered[QAction].connect(
@@ -613,6 +676,37 @@ class Harvester(QMainWindow):
                     enable = True
         return enable
 
+    def action_on_save_video(self):
+        if self.ia.is_recording:
+            self.ia.is_recording = False
+            self.button_save_video.setIcon(Icon('record_off.png'))
+        else:
+            self.ia.is_recording = True
+            self.button_save_video.setIcon(Icon('record_on.png'))
+
+    def action_on_snapshot(self):
+        if self.canvas._buffers:
+            buffer = self.canvas._buffers[0].payload.components[0]
+            image = Image.frombytes("L", (buffer.width, buffer.height), buffer.data)
+            file_name = time.strftime("SnapShot[%Y.%m.%d]_[%H.%M.%S].bmp")
+            file_name = os.path.join(self.ia.save_path, file_name)
+            image.save(file_name, format='bmp')
+            return True
+        else:
+            return False
+
+    def action_on_save_path(self):
+        dialog = QFileDialog(self)
+        dialog.setWindowTitle('Select a directory to save to')
+        dialog.setFileMode(QFileDialog.DirectoryOnly)
+
+        if dialog.exec_() == QDialog.Accepted:
+            #
+            file_path = dialog.selectedFiles()[0]
+
+            #
+            self.ia.save_path = file_path
+
     def action_on_show_attribute_controller(self):
         if self.ia and self.attribute_controller.isHidden():
             self.attribute_controller.show()
@@ -634,6 +728,13 @@ class Harvester(QMainWindow):
             if self.ia:
                 if self.ia.is_acquiring_images:
                     enable = True
+        return enable
+
+    def is_enabled_on_recording(self):
+        enable = False
+        if self.cti_files:
+            if self.ia:
+                enable = True
         return enable
 
     def action_on_show_about(self):
@@ -706,6 +807,36 @@ class ActionDisconnect(Action):
 
 
 class ActionStartImageAcquisition(Action):
+    def __init__(
+            self, icon=None, title=None, parent=None, action=None, is_enabled=None
+    ):
+        #
+        super().__init__(
+            icon=icon, title=title, parent=parent, action=action, is_enabled=is_enabled
+        )
+
+
+class ActionSaveVideo(Action):
+    def __init__(
+            self, icon=None, title=None, parent=None, action=None, is_enabled=None
+    ):
+        #
+        super().__init__(
+            icon=icon, title=title, parent=parent, action=action, is_enabled=is_enabled
+        )
+
+
+class ActionSnapshot(Action):
+    def __init__(
+            self, icon=None, title=None, parent=None, action=None, is_enabled=None
+    ):
+        #
+        super().__init__(
+            icon=icon, title=title, parent=parent, action=action, is_enabled=is_enabled
+        )
+
+
+class ActionSavePath(Action):
     def __init__(
             self, icon=None, title=None, parent=None, action=None, is_enabled=None
     ):

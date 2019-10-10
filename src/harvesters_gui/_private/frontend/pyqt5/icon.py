@@ -25,11 +25,14 @@ from PyQt5.QtGui import QIcon
 
 # Local application/library specific imports
 from harvesters_gui._helper import get_package_root
+import os
 
 
 class Icon(QIcon):
+    dynamic_path = os.path.join('_private', 'frontend', 'image', 'icon')
+
     def __init__(self, file_name):
         #
         super().__init__(
-            get_package_root() + '/_private/frontend/image/icon/' + file_name
+            os.path.join(get_package_root(), self.dynamic_path, file_name)
         )
