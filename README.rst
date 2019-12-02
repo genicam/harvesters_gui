@@ -20,6 +20,7 @@
 Announcements
 #############
 
+- **Version 0.2.6**: Resolves issue `#13 <https://github.com/genicam/harvesters_gui/issues/13>`_.
 - **Version 0.2.5**: Use Harvester Core version ``0.2.4``.
 - **Version 0.2.4**: Use Harvester Core version ``0.2.3``.
 - **Version 0.2.3**: Use Harvester Core version ``0.2.2``.
