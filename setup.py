@@ -82,7 +82,7 @@ setuptools.setup(
     # A list of required Python modules:
     install_requires=[
         'PyQt5',
-        'vispy<=0.6',
+        'vispy',
         'harvesters<=0.2.12',
     ],
 
