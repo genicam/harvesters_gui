@@ -83,7 +83,7 @@ setuptools.setup(
     install_requires=[
         'PyQt5<=5.13',
         'vispy<=0.6',
-        'harvesters<=0.2.12',
+        'harvesters>=0.2.13',
     ],
 
     license='Apache Software License V2.0',
