@@ -203,7 +203,6 @@ class CanvasBase(app.Canvas):
     def toggle_drawing(self):
         self._pause_drawing = False if self._pause_drawing else True
 
-    @property
     def is_pausing(self):
         return True if self._pause_drawing else False
 

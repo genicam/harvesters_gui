@@ -569,10 +569,10 @@ class Harvester(QMainWindow):
         return enable
 
     def action_on_start_image_acquisition(self):
-        if self.ia.is_acquiring_images:
+        if self.ia.is_acquiring_images():
             # If it's pausing drawing images, just resume it and
             # immediately return this method.
-            if self.canvas.is_pausing:
+            if self.canvas.is_pausing():
                 self.canvas.resume_drawing()
         else:
             # Start statistics measurement:
@@ -585,8 +585,8 @@ class Harvester(QMainWindow):
         enable = False
         if self.cti_files:
             if self.ia:
-                if not self.ia.is_acquiring_images or \
-                        self.canvas.is_pausing:
+                if not self.ia.is_acquiring_images() or \
+                        self.canvas.is_pausing():
                     enable = True
         return enable
 
@@ -609,7 +609,7 @@ class Harvester(QMainWindow):
         enable = False
         if self.cti_files:
             if self.ia:
-                if self.ia.is_acquiring_images:
+                if self.ia.is_acquiring_images():
                     enable = True
         return enable
 
@@ -632,7 +632,7 @@ class Harvester(QMainWindow):
         enable = False
         if self.cti_files:
             if self.ia:
-                if self.ia.is_acquiring_images:
+                if self.ia.is_acquiring_images():
                     enable = True
         return enable
 
@@ -727,7 +727,7 @@ class ActionToggleDrawing(Action):
 
     def _update(self):
         #
-        checked = True if self.parent().canvas.is_pausing else False
+        checked = True if self.parent().canvas.is_pausing() else False
         self.setChecked(checked)
 
 

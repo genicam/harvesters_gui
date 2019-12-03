@@ -81,10 +81,10 @@ class _ThreadImpl(QThread):
 
     def stop(self):
         with QMutexLocker(self._base.mutex):
-            self._base.is_running = False
+            self._base._is_running = False
 
     def run(self):
-        while self._base.is_running:
+        while self._base.is_running():
             if self._worker:
                 self._worker()
                 # Force the current thread to sleep for some microseconds:
