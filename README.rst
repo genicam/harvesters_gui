@@ -37,7 +37,7 @@ Harvester was created to be a friendly image acquisition library for all people 
 Harvester Core:
 
 - Image acquisition
-- Device manipulation
+- Remote device manipulation
 
 Harvester GUI:
 
@@ -98,7 +98,7 @@ Before start talking about the detail, let's take a look at some important termi
 
 * **Harvester GUI**: A part of Harvester that works as a graphical user interface of Harvester Core.
 
-* **A GenICam compliant device**: It's typically a camera. Just involving the GenICam reference implementation, it offers consumers a way to dynamically configure/control the target devices.
+* **A GenICam compliant remote device**: It's typically a camera. Just involving the GenICam reference implementation, it offers consumers a way to dynamically configure/control the target remote devices.
 
 The following diagram shows the hierarchy and relationship of the relevant modules:
 
@@ -187,7 +187,7 @@ The main features of Harvester GUI are listed as follows:
 * Image dragging using a mouse or a trackpad
 * An arbitrary selection of image displaying point in the data path (Not implemented yet)
 
-Unlike Harvester Core, Harvester GUI limits the number of GenTL Producers to load just one. This is just a limitation to not make the GUI complicated. In general, the user should know which GenTL Producer should be loaded to control his target device. It's not necessary to load multiple GenTL Producers for this use case. However, this is just an idea in an early stage. We might support multiple loading on even Harvester GUI in the future.
+Unlike Harvester Core, Harvester GUI limits the number of GenTL Producers to load just one. This is just a limitation to not make the GUI complicated. In general, the user should know which GenTL Producer should be loaded to control his target remote device. It's not necessary to load multiple GenTL Producers for this use case. However, this is just an idea in an early stage. We might support multiple loading on even Harvester GUI in the future.
 
 *****************************************
 Pixel formats that Harvester GUI supports
@@ -219,7 +219,7 @@ The image data visualizer window (below) offers you a visualization of the acqui
 Attribute controller window
 ***************************
 
-The attribute controller window (below) offers you to manipulate GenICam feature nodes of the target device. Changing exposure time, triggering the target device for image acquisition, storing a set of camera configuration so-called User Set, etc, you can manually control the target device anytime when you want to. It supports the visibility filter feature and regular expression feature. These features are useful in a case where you need to display only the features you are interested in.
+The attribute controller window (below) offers you to manipulate GenICam feature nodes of the target remote device. Changing exposure time, triggering the target remote device for image acquisition, storing a set of camera configuration so-called User Set, etc, you can manually control the target remote device anytime when you want to. It supports the visibility filter feature and regular expression feature. These features are useful in a case where you need to display only the features you are interested in.
 
 .. image:: https://user-images.githubusercontent.com/8652625/43035351-d35a2936-8d28-11e8-83d5-7b6efa6e2ad8.png
     :align: center
@@ -251,37 +251,37 @@ Selecting a CTI file
 
 This button is used to select a GenTL Producer file to load. The shortcut key is ``Ctrl+o``.
 
-Updating the device information list
-------------------------------------
+Updating the remote device information list
+-------------------------------------------
 
 .. image:: https://user-images.githubusercontent.com/8652625/40596091-9354283a-6273-11e8-8c6f-559db511339a.png
     :align: left
     :alt: Update
 
-This button is used to update the device information list; the list will be filled up with the devices that are handled by the GenTL Producer that you have loaded on Harvester GUI; sometime it might be empy if there's no device is available. The shortcut key is ``Ctrl+u``. It might be useful when you newly connect a device to your system.
+This button is used to update the remote device information list; the list will be filled up with the remote devices that are handled by the GenTL Producer that you have loaded on Harvester GUI; sometime it might be empy if there's no remote device is available. The shortcut key is ``Ctrl+u``. It might be useful when you newly connect a remote device to your system.
 
-Selecting a GenICam compliant device
-------------------------------------
+Selecting a GenICam compliant remote device
+-------------------------------------------
 
-This combo box shows a list of available GenICam compliant devices. You can select a device that you want to control. The shortcut key is ``Ctrl+D``, i.e., ``Ctrl+Shift+d``.
+This combo box shows a list of available GenICam compliant remote devices. You can select a remote device that you want to control. The shortcut key is ``Ctrl+D``, i.e., ``Ctrl+Shift+d``.
 
-Connecting a selected device to Harvester
------------------------------------------
+Connecting a selected remote device to Harvester
+------------------------------------------------
 
 .. image:: https://user-images.githubusercontent.com/8652625/40596045-49c61d54-6273-11e8-8424-d16e923b5b3f.png
     :align: left
     :alt: Connect
 
-This button is used to connect a device which is being selected by the former combo box. The shortcut key is ``Ctrl+c``. Once you connect the device, the device is exclusively controlled.
+This button is used to connect a remote device which is being selected by the former combo box. The shortcut key is ``Ctrl+c``. Once you connect the remote device, the remote device is exclusively controlled.
 
-Disconnecting the connecting device from Harvester
---------------------------------------------------
+Disconnecting the connecting remote device from Harvester
+---------------------------------------------------------
 
 .. image:: https://user-images.githubusercontent.com/8652625/40596046-49f0fd9e-6273-11e8-83e3-7ba8aad3c4f7.png
     :align: left
     :alt: Disconnect
 
-This button is used to disconnect the connecting device from Harvester. The shortcut key is ``Ctrl+d``.
+This button is used to disconnect the connecting remote device from Harvester. The shortcut key is ``Ctrl+d``.
 
 Starting image acquisition
 --------------------------
@@ -310,14 +310,14 @@ Stopping image acquisition
 
 This button is used to stop image acquisition. The shortcut key is ``Ctrl+l``.
 
-Showing the device attribute dialog
------------------------------------
+Showing the remote device attribute dialog
+------------------------------------------
 
 .. image:: https://user-images.githubusercontent.com/8652625/40596224-7b2cf0e2-6274-11e8-9088-bb48163968d6.png
     :align: left
     :alt: Device attribute
 
-This button is used to show the device attribute dialog. The shortcut key is ``Ctrl+a``. The device attribute dialog offers you to a way to intuitively control device attribute over a GUI.
+This button is used to show the remote device attribute dialog. The shortcut key is ``Ctrl+a``. The remote device attribute dialog offers you to a way to intuitively control remote device attribute over a GUI.
 
 Showing the about dialog
 ------------------------
@@ -356,7 +356,7 @@ If you're using a mouse, grab any point in the canvas and drag the pointer as if
 Attribute controller window
 ***************************
 
-The attribute controller offers you an interface to each GenICam feature node that the the target device provides.
+The attribute controller offers you an interface to each GenICam feature node that the the target remote device provides.
 
 Attribute controller window :: Toolbar
 ======================================
