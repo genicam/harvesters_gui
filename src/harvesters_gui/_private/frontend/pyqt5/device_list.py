@@ -22,8 +22,6 @@
 
 # Related third party imports
 from PyQt5.QtWidgets import QComboBox
-from genicam2.gentl import NotImplementedException, NotAvailableException, \
-    InvalidParameterException
 
 # Local application/library specific imports
 from harvesters._private.core.observer import Observer

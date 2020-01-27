@@ -30,8 +30,8 @@ from PyQt5.QtWidgets import QApplication, QTreeView, \
     QSpinBox, QPushButton, QComboBox, QWidget, \
     QLineEdit
 
-from genicam2.genapi import NodeMap
-from genicam2.genapi import EInterfaceType, EAccessMode, EVisibility
+from genicam.genapi import NodeMap
+from genicam.genapi import EInterfaceType, EAccessMode, EVisibility
 
 # Local application/library specific imports
 from harvesters_gui._private.frontend.pyqt5.helper import get_system_font

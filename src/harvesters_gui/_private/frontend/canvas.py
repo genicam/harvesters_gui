@@ -29,8 +29,8 @@ from vispy import app
 from vispy.gloo import Program
 from vispy.util.transforms import ortho
 
-from genicam2.gentl import PAYLOADTYPE_INFO_IDS
-from genicam2.gentl import TimeoutException
+from genicam.gentl import PAYLOADTYPE_INFO_IDS
+from genicam.gentl import TimeoutException
 
 # Local application/library specific imports
 from harvesters._private.core.helper.system import is_running_on_macos

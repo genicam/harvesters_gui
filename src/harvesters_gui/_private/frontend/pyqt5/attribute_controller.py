@@ -27,7 +27,7 @@ from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QMainWindow, QApplication, QTreeView, \
     QAction, QComboBox, QLineEdit, QLabel, QShortcut
 
-from genicam2.genapi import EVisibility
+from genicam.genapi import EVisibility
 
 # Local application/library specific imports
 from harvesters_gui._private.frontend.helper import compose_tooltip

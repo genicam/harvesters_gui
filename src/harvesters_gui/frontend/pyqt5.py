@@ -30,7 +30,7 @@ from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QMainWindow, QAction, QComboBox, \
     QDesktopWidget, QFileDialog, QDialog, QShortcut, QApplication
 
-from genicam2.gentl import NotInitializedException, InvalidHandleException, \
+from genicam.gentl import NotInitializedException, InvalidHandleException, \
     InvalidIdException, ResourceInUseException, \
     InvalidParameterException, NotImplementedException, \
     AccessDeniedException
@@ -494,10 +494,10 @@ class Harvester(QMainWindow):
         self.ia.signal_stop_image_acquisition = self._signal_stop_image_acquisition
 
         try:
-            if self.ia.device.node_map:
+            if self.ia.remote_device.node_map:
                 self._widget_attribute_controller = \
                     AttributeController(
-                        self.ia.device.node_map,
+                        self.ia.remote_device.node_map,
                         parent=self
                     )
         except AttributeError:
@@ -647,9 +647,9 @@ class Harvester(QMainWindow):
 
         #
         message_config = 'W: {0} x H: {1}, {2}, '.format(
-            self.ia.device.node_map.Width.value,
-            self.ia.device.node_map.Height.value,
-            self.ia.device.node_map.PixelFormat.value
+            self.ia.remote_device.node_map.Width.value,
+            self.ia.remote_device.node_map.Height.value,
+            self.ia.remote_device.node_map.PixelFormat.value
         )
         #
         message_statistics = '{0:.1f} fps, elapsed {1}, {2} images'.format(
