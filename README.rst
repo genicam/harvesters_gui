@@ -17,6 +17,7 @@
 Announcements
 #############
 
+- **Version 1.0.1**: Resolves issue `#17 <https://github.com/genicam/harvesters_gui/issues/17>`_.
 - **Version 1.0.0**: Resolves issue `#16 <https://github.com/genicam/harvesters_gui/issues/16>`_.
 - **Version 0.4.0**: Resolves issue `#15 <https://github.com/genicam/harvesters_gui/issues/15>`_.
 - **Version 0.3.0**: Resolves issues `#11 <https://github.com/genicam/harvesters_gui/issues/11>`_ and `#14 <https://github.com/genicam/harvesters_gui/issues/14>`_.
