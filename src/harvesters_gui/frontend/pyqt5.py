@@ -297,6 +297,21 @@ class Harvester(QMainWindow):
         self._action_stop_image_acquisition = button_stop_image_acquisition
 
         #
+        button_autofit_canvas = ActionAutofitCanvas(
+            icon='expand.png', title='Autofit', parent=self,
+            action=self.action_on_autofit_canvas,
+            is_enabled=self.is_enabled_on_autofit
+        )
+        shortcut_key = 'Ctrl+f'
+        button_stop_image_acquisition.setToolTip(
+            compose_tooltip('Fit canvas to screen', shortcut_key)
+        )
+        button_stop_image_acquisition.setShortcut(shortcut_key)
+        button_stop_image_acquisition.toggle()
+        observers.append(button_stop_image_acquisition)
+        self._action_stop_image_acquisition = button_stop_image_acquisition
+
+        #
         button_dev_attribute = ActionShowAttributeController(
             icon='device_attribute.png', title='Device Attribute', parent=self,
             action=self.action_on_show_attribute_controller,
@@ -427,6 +442,7 @@ class Harvester(QMainWindow):
         group_device.addAction(button_start_image_acquisition)
         group_device.addAction(button_toggle_drawing)
         group_device.addAction(button_stop_image_acquisition)
+        group_device.addAction(button_autofit_canvas)
         group_device.addAction(button_dev_attribute)
 
         #
@@ -613,6 +629,13 @@ class Harvester(QMainWindow):
                     enable = True
         return enable
 
+    def action_on_autofit_canvas(self):
+        self.canvas.autofit()
+
+    def is_enabled_on_autofit(self):
+        enable = True
+        return enable
+
     def action_on_show_attribute_controller(self):
         if self.ia and self.attribute_controller.isHidden():
             self.attribute_controller.show()
@@ -732,6 +755,16 @@ class ActionToggleDrawing(Action):
 
 
 class ActionStopImageAcquisition(Action):
+    def __init__(
+            self, icon=None, title=None, parent=None, action=None, is_enabled=None
+    ):
+        #
+        super().__init__(
+            icon=icon, title=title, parent=parent, action=action, is_enabled=is_enabled
+        )
+
+
+class ActionAutofitCanvas(Action):
     def __init__(
             self, icon=None, title=None, parent=None, action=None, is_enabled=None
     ):

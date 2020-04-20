@@ -449,3 +449,19 @@ class Canvas2D(CanvasBase):
             self._coordinate[0] -= (delta[0] * ratio)
             self._coordinate[1] += (delta[1] * ratio)
             self.apply_magnification()
+
+    def autofit(self):
+        self._coordinate[0] = 0
+        self._coordinate[1] = 0
+
+        mag_width = self._width / self.physical_size[0]
+        mag_height = self._height / self.physical_size[1]
+        self._magnification = max(mag_height, mag_width)
+
+        from math import log2
+        stride = 4. if is_running_on_macos() else 7.
+        self._translate = -log2(self._magnification) * stride
+
+        self.apply_magnification()
+        self.render()
+
