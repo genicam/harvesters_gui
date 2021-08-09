@@ -38,13 +38,6 @@ class _PyQtThread(ThreadBase):
             update_cycle_us=update_cycle_us
         )
 
-    def _start(self):
-        self._thread.start()
-
-    def stop(self):
-        self._thread.stop()
-        self._thread.wait()
-
     def acquire(self):
         return self._thread.acquire()
 
@@ -66,6 +59,21 @@ class _PyQtThread(ThreadBase):
     @property
     def id_(self):
         return self._thread.id_
+
+    def is_running(self) -> bool:
+        return self._is_running
+
+    def join(self):
+        pass
+
+    def _internal_stop(self):
+        self._thread.stop()
+        self._thread.wait()
+        self._is_running = False
+
+    def _internal_start(self) -> None:
+        self._is_running = True
+        self._thread.start()
 
 
 class _ThreadImpl(QThread):
