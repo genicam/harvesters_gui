@@ -1,3 +1,9 @@
+.. figure:: https://user-images.githubusercontent.com/8652625/40595190-1e16e90e-626e-11e8-9dc7-207d691c6d6d.jpg
+    :align: center
+    :alt: The Harvesters
+
+    Pieter Bruegel the Elder, The Harvesters, 1565, (c) The Metropolitan Museum of Art
+
 .. image:: https://img.shields.io/pypi/v/harvesters_gui.svg
     :target: https://pypi.org/project/harvesters_gui
 
@@ -5,13 +11,23 @@
 
 ----
 
-*Even though we just wanted to research image processing algorithms, why did we have to change our image acquisition library every time we change the camera that we use for the research?
-- Anonymous*
+######################
+What Is Harvester GUI?
+######################
+
+Harvester GUI is a reference implementation of a `Harvester <https://github.com/genicam/harvesters>`_-based GUI. We need to admit that it must not be the one that satisfies your realuse cases but it should give you an idea how you can design a GUI that is based on Harvester as its image acquisition front-end.
+
+You can freely use, modify, distribute Harvester under `Apache License-2.0 <https://www.apache.org/licenses/LICENSE-2.0>`_ without worrying about the use of your software: personal, internal or commercial.
+
 
 ----
 
 .. contents:: Table of Contents
-    :depth: 2
+    :depth: 1
+
+**Disclaimer**: All external pictures should have associated credits. If there are missing credits, please tell us, we will correct it. Similarly, all excerpts should be sourced. If not, this is an error and we will correct it as soon as you tell us.
+
+----
 
 #############
 Announcements
@@ -23,91 +39,21 @@ Announcements
 - **Version 0.4.0**: Resolves issue `#15 <https://github.com/genicam/harvesters_gui/issues/15>`_.
 - **Version 0.3.0**: Resolves issues `#11 <https://github.com/genicam/harvesters_gui/issues/11>`_ and `#14 <https://github.com/genicam/harvesters_gui/issues/14>`_.
 - **Version 0.2.6**: Resolves issue `#13 <https://github.com/genicam/harvesters_gui/issues/13>`_.
-- **Version 0.2.5**: Use Harvester Core version ``0.2.4``.
-- **Version 0.2.4**: Use Harvester Core version ``0.2.3``.
-- **Version 0.2.3**: Use Harvester Core version ``0.2.2``.
+- **Version 0.2.5**: Use Harvester version ``0.2.4``.
+- **Version 0.2.4**: Use Harvester version ``0.2.3``.
+- **Version 0.2.3**: Use Harvester version ``0.2.2``.
 - **Version 0.2.2**: Resolves issue `#5 <https://github.com/genicam/harvesters_gui/issues/7>`_.
-- **Version 0.2.1**: Works with Harvester Core versions >= ``0.2.1``.
-- **Version 0.2.0**: Works with Harvester Core versions >= ``0.2.0``.
+- **Version 0.2.1**: Works with Harvester versions >= ``0.2.1``.
+- **Version 0.2.0**: Works with Harvester versions >= ``0.2.0``.
 - **Version 0.1.0**: Note that this version will be deprecated and the following versions will be incompatible with any of ``0.1.n`` versions.
-
-###############
-About Harvester
-###############
-
-Harvester was created to be a friendly image acquisition library for all people who those want to learn computer/machine vision. Harvester consists of two Python libraries, Harvester Core and Harvester GUI, and technically speaking, each library is responsible for the following tasks:
-
-Harvester Core:
-
-- Image acquisition
-- Remote device manipulation
-
-Harvester GUI:
-
-- Image data visualization
-
-Harvester consumes image acquisition libraries, so-called GenTL Producers. Just grabbing a GenTL Producer and GenICam compliant machine vision cameras, then Harvester will supply you the acquired image data as `numpy <http://www.numpy.org>`_ array to make your image processing task productive.
-
-You can freely use, modify, distribute Harvester under `Apache License-2.0 <https://www.apache.org/licenses/LICENSE-2.0>`_ without worrying about the use of your software: personal, internal or commercial.
-
-Currently, Harvester is being developed by the motivated contributors from all over the world.
-
-***********************
-Where is the name from?
-***********************
-
-Harvester's name was coming from the great Flemish painter, Pieter Bruegel the Elder's painting so-called "The Harvesters". Harvesters harvest a crop every season that has been fully grown and the harvested crop is passed to the consumers. On the other hand, image acquisition libraries acquire images as their crop and the images are passed to the following processes. We found the similarity between them and decided to name our library Harvester.
-
-Apart from anything else, we love its peaceful and friendly name. We hope you also like it ;-)
-
-.. figure:: https://user-images.githubusercontent.com/8652625/40595190-1e16e90e-626e-11e8-9dc7-207d691c6d6d.jpg
-    :align: center
-    :alt: The Harvesters
-
-    Pieter Bruegel the Elder, The Harvesters, 1565, (c) 2000–2018 The Metropolitan Museum of Art
-
-****************
-Asking questions
-****************
-
-We have prepared a chat room in Gitter. Please don't hesitate to drop your message when you get a question regarding Harvester!
-
-https://gitter.im/genicam-harvester/chatroom
 
 **************
 External links
 **************
 
-* `GitHub <https://github.com/genicam/harvesters>`_: This is the main repository of Harvester
-* `Harvester Core <https://github.com/genicam/harvesters>`_: Image acquisition front-end library with Python
+* `Harvester <https://github.com/genicam/harvesters>`_: Image acquisition front-end library
 * `PyPI <https://pypi.org/project/harvesters/>`_: This is the package distribution page of Harvester which is located in PyPI
-* `Read the Docs <https://harvesters.readthedocs.io/en/latest/>`_: You can find the API reference of Harvester Core and Harvester GUI
-
-###########
-Terminology
-###########
-
-Before start talking about the detail, let's take a look at some important terminologies that frequently appear in this document. These terminologies are listed as follows:
-
-* **The GenApi-Python Binding**: A Python module that communicates with the GenICam reference implementation.
-
-* **A GenTL Producer**: A library that has C interface and offers consumers a way to communicate with cameras over physical transport layer dependent technology hiding the detail from the consumer.
-
-* **The GenTL-Python Binding**: A Python module that communicates with GenTL Producers.
-
-* **Harvester**: A Python module that consists of Harvester Core and Harvester GUI.
-
-* **Harvester Core**: A part of Harvester that works as an image acquisition engine.
-
-* **Harvester GUI**: A part of Harvester that works as a graphical user interface of Harvester Core.
-
-* **A GenICam compliant remote device**: It's typically a camera. Just involving the GenICam reference implementation, it offers consumers a way to dynamically configure/control the target remote devices.
-
-The following diagram shows the hierarchy and relationship of the relevant modules:
-
-.. figure:: https://user-images.githubusercontent.com/8652625/44316633-926cf100-a467-11e8-92c6-ac69ad3c8129.png
-    :align: center
-    :alt: Module hierarchy
+* `Read the Docs <https://harvesters.readthedocs.io/en/latest/>`_: You can find the API reference of Harvester and Harvester GUI
 
 ############
 Installation
@@ -121,23 +67,12 @@ System Requirements
 
 The following software modules are required to get Harvester working:
 
-* Either of Python 3.4, 3.5, 3.6, or 3.7
+* Python>=3.5,<3.9
 
 In addition, you will need the following items to let Harvester make something meaningful:
 
 * GenTL Producers
 * GenICam compliant machine vision cameras
-
-***************************
-Supported operating systems
-***************************
-
-Harvester has been tested with the following operating systems:
-
-* macOS 10.13
-* Ubuntu 14.04
-* Red Hat Enterprise Linux Workstation 7.4
-* Windows 7
 
 ************************
 Installing Harvester GUI
@@ -181,7 +116,7 @@ You will see Harvester GUI pops up.
 How does Harvester GUI us?
 ###########################
 
-Harvester GUI works on the top of Harvester Core and offers you high-performance image data visualization on the fly. It involves VisPy for controlling OpenGL functionality and PyQt for providing GUI.
+Harvester GUI works on the top of Harvester and offers you high-performance image data visualization on the fly. It involves VisPy for controlling OpenGL functionality and PyQt for providing GUI.
 
 The main features of Harvester GUI are listed as follows:
 
@@ -190,17 +125,7 @@ The main features of Harvester GUI are listed as follows:
 * Image dragging using a mouse or a trackpad
 * An arbitrary selection of image displaying point in the data path (Not implemented yet)
 
-Unlike Harvester Core, Harvester GUI limits the number of GenTL Producers to load just one. This is just a limitation to not make the GUI complicated. In general, the user should know which GenTL Producer should be loaded to control his target remote device. It's not necessary to load multiple GenTL Producers for this use case. However, this is just an idea in an early stage. We might support multiple loading on even Harvester GUI in the future.
-
-*****************************************
-Pixel formats that Harvester GUI supports
-*****************************************
-
-Currently, Harvester GUI supports the following pixel formats that are defined by the Pixel Format Naming Convention:
-
-    ``Mono8``, ``Mono10``, ``Mono12``, ``Mono16``, ``RGB8``, ``RGBa8``, ``BayerRG8``, ``BayerGR8``, ``BayerBG8``, ``BayerGB8``, ``BayerRG16``, ``BayerGR16``, ``BayerBG16``, ``BayerGB16``
-
-Note that Harvester GUI has not yet supported demosaicing.
+Unlike Harvester, Harvester GUI limits the number of GenTL Producers to load just one. This is just a limitation to not make the GUI complicated. In general, the user should know which GenTL Producer should be loaded to control his target remote device. It's not necessary to load multiple GenTL Producers for this use case. However, this is just an idea in an early stage. We might support multiple loading on even Harvester GUI in the future.
 
 ###########
 Screenshots
