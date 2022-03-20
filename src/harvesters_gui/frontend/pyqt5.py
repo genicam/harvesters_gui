@@ -491,6 +491,9 @@ class Harvester(QMainWindow):
         self.ia.thread_image_acquisition = _PyQtThread(
             parent=self, mutex=self._mutex
         )
+        self.ia.thread_remote_device_event = _PyQtThread(
+            parent=self, mutex=self._mutex
+        )
         self.ia.signal_stop_image_acquisition = self._signal_stop_image_acquisition
 
         try:
@@ -543,7 +546,7 @@ class Harvester(QMainWindow):
             self.harvester_core.add_cti_file(file_path)
 
             # Update the device list.
-            self.harvester_core.update_device_info_list()
+            self.harvester_core.update()
 
     def is_enabled_on_select_file(self):
         enable = False
@@ -552,7 +555,7 @@ class Harvester(QMainWindow):
         return enable
 
     def action_on_update_list(self):
-        self.harvester_core.update_device_info_list()
+        self.harvester_core.update()
 
     def is_enabled_on_update_list(self):
         enable = False
@@ -569,7 +572,7 @@ class Harvester(QMainWindow):
         return enable
 
     def action_on_start_image_acquisition(self):
-        if self.ia.is_acquiring_images():
+        if self.ia.is_acquiring():
             # If it's pausing drawing images, just resume it and
             # immediately return this method.
             if self.canvas.is_pausing():
@@ -579,13 +582,13 @@ class Harvester(QMainWindow):
             self.ia.statistics.reset()
             self._thread_statistics_measurement.start()
 
-            self.ia.start_image_acquisition()
+            self.ia.start()
 
     def is_enabled_on_start_image_acquisition(self):
         enable = False
         if self.cti_files:
             if self.ia:
-                if not self.ia.is_acquiring_images() or \
+                if not self.ia.is_acquiring() or \
                         self.canvas.is_pausing():
                     enable = True
         return enable
@@ -600,7 +603,7 @@ class Harvester(QMainWindow):
         self.canvas.release_buffers()
 
         # Then we stop image acquisition:
-        self.ia.stop_image_acquisition()
+        self.ia.stop()
 
         # Initialize the drawing state:
         self.canvas.pause_drawing(False)
@@ -609,7 +612,7 @@ class Harvester(QMainWindow):
         enable = False
         if self.cti_files:
             if self.ia:
-                if self.ia.is_acquiring_images():
+                if self.ia.is_acquiring():
                     enable = True
         return enable
 
@@ -632,7 +635,7 @@ class Harvester(QMainWindow):
         enable = False
         if self.cti_files:
             if self.ia:
-                if self.ia.is_acquiring_images():
+                if self.ia.is_acquiring():
                     enable = True
         return enable
 
