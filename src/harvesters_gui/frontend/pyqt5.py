@@ -471,8 +471,8 @@ class Harvester(QMainWindow):
         #
         try:
             self._ia = self.harvester_core.create_image_acquirer(
-                self.device_list.currentIndex()
-            )
+                self.device_list.currentIndex(),
+                create_thread=lambda: _PyQtThread(parent=self, mutex=self._mutex))
             # We want to hold one buffer to keep the chunk data alive:
             self._ia.num_buffers += 1
         except (
@@ -487,13 +487,6 @@ class Harvester(QMainWindow):
             # The device is not available.
             return
 
-        #
-        self.ia.thread_image_acquisition = _PyQtThread(
-            parent=self, mutex=self._mutex
-        )
-        self.ia.thread_remote_device_event = _PyQtThread(
-            parent=self, mutex=self._mutex
-        )
         self.ia.signal_stop_image_acquisition = self._signal_stop_image_acquisition
 
         try:
