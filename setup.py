@@ -35,14 +35,6 @@ log.info('Entered setup.py')
 log.info('$PATH=%s' % os.environ['PATH'])
 
 
-# Check the Python version:
-supported_versions = [(3, 5), (3, 6), (3, 7), (3, 8)]
-if sys.version_info in supported_versions:
-    raise RuntimeError(
-        'See https://github.com/genicam/harvesters_gui#requirements'
-    )
-
-
 with open('README.rst', 'r',encoding='utf-8_sig') as fh:
     __doc__ = fh.read()
 
@@ -61,7 +53,7 @@ setuptools.setup(
     author='The GenICam Committee',
     author_email='genicam@list.stemmer-imaging.com',
     # Tells the index and pip some additional metadata about our package:
-    classifiers=(
+    classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Science/Research',
         'Intended Audience :: Education',
@@ -70,20 +62,15 @@ setuptools.setup(
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-    ),
+    ],
     # A short, on-sentence summary of the package:
     description=description,
     # Location where the package may be downloaded:
     download_url='https://pypi.org/project/harvesters_gui/',
     # A list of required Python modules:
     install_requires=[
-        'PyQt5<=5.13',
         'vispy<=0.6',
-        'harvesters>=1.1',
+        'harvesters>=1.4.1',
     ],
 
     license='Apache Software License V2.0',
