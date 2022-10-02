@@ -207,15 +207,13 @@ class FeatureTreeModel(QAbstractItemModel):
 
         item = index.internalPointer()
         if role == Qt.DisplayRole:
-            value = item.data(index.column())
+            return item.data(index.column())
         elif role == Qt.ToolTipRole:
-            value = item.tooltip(index.column())
+            return item.tooltip(index.column())
         elif role == Qt.BackgroundColorRole:
-            value = item.background(index.column())
+            return item.background(index.column())
         else:
-            value = item.foreground(index.column())
-
-        return value
+            return item.foreground(index.column())
 
     def flags(self, index):
         if not index.isValid():
