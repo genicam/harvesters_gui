@@ -505,13 +505,9 @@ class Harvester(QMainWindow):
 
     def action_on_connect(self):
         #
-        config = ParameterSet({
-            ParameterKey.THREAD_FACTORY_METHOD: lambda: _PyQtThread(
-                parent=self, mutex=self._mutex),
-        })
         try:
             self._ia = self.harvester_core.create(
-                self.device_list.currentIndex(), config=config)
+                self.device_list.currentIndex())
             # We want to hold one buffer to keep the chunk data alive:
             self._ia.num_buffers += 1
         except (
