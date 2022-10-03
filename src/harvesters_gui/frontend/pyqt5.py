@@ -67,9 +67,14 @@ class OnDataUpdated(Callback):
 class _Timer(Timer):
     def __init__(self):
         super().__init__()
+        self._timer = QTimer()
+
+    @staticmethod
+    def create():
+        return _Timer()
 
     def sleep(self, value: Any):
-        QTimer.sleep(value)
+        self._timer.start(value)
 
 
 class Harvester(QMainWindow):
@@ -86,12 +91,11 @@ class Harvester(QMainWindow):
 
         #
         self._mutex = QMutex()
-        self._timer = _Timer()
 
         config = ParameterSet({
             ParameterKey._ENABLE_PROFILE: True if 'HARVESTER_PROFILE' in os.environ else False,
             ParameterKey.LOGGER: self._logger,
-            ParameterKey.TIMER: self._timer,
+            ParameterKey.TIMER: _Timer,
         })
         self._harvester_core = HarvesterCore(config=config)
         self._ia = None  # Image Acquirer
@@ -501,11 +505,13 @@ class Harvester(QMainWindow):
 
     def action_on_connect(self):
         #
+        config = ParameterSet({
+            ParameterKey.THREAD_FACTORY_METHOD: lambda: _PyQtThread(
+                parent=self, mutex=self._mutex),
+        })
         try:
-            self._ia = self.harvester_core.create_image_acquirer(
-                self.device_list.currentIndex(),
-                #create_thread=lambda: _PyQtThread(parent=self, mutex=self._mutex))
-            )
+            self._ia = self.harvester_core.create(
+                self.device_list.currentIndex(), config=config)
             # We want to hold one buffer to keep the chunk data alive:
             self._ia.num_buffers += 1
         except (
