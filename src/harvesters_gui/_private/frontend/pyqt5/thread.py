@@ -27,16 +27,11 @@ from PyQt5.QtCore import QMutexLocker, QThread
 from harvesters.core import ThreadBase
 
 
-class _PyQtThread(ThreadBase):
+class _PyQtThreadBase(ThreadBase):
     def __init__(self, parent=None, mutex=None, worker=None, update_cycle_us=1):
         #
         super().__init__(mutex=mutex)
-
-        #
-        self._thread = _ThreadImpl(
-            parent=parent, base=self, worker=worker,
-            update_cycle_us=update_cycle_us
-        )
+        self._thread = None
 
     def acquire(self):
         return self._thread.acquire()
@@ -76,7 +71,31 @@ class _PyQtThread(ThreadBase):
         self._thread.start()
 
 
-class _ThreadImpl(QThread):
+class _PyQtThread(_PyQtThreadBase):
+    def __init__(self, parent=None, mutex=None, worker=None, update_cycle_us=1):
+        #
+        super().__init__(mutex=mutex)
+
+        #
+        self._thread = _ThreadImpl(
+            parent=parent, base=self, worker=worker,
+            update_cycle_us=update_cycle_us
+        )
+
+
+class _PyQtModuleEventMonitorThread(_PyQtThreadBase):
+    def __init__(self, parent=None, mutex=None, worker=None, update_cycle_us=1):
+        #
+        super().__init__(mutex=mutex)
+
+        #
+        self._thread = _ModuleEventMonitorThreadImpl(
+            parent=parent, base=self, worker=worker,
+            update_cycle_us=update_cycle_us
+        )
+
+
+class _ThreadImplBase(QThread):
     def __init__(self, parent=None, base=None, worker=None,
                  update_cycle_us=1):
         #
@@ -92,11 +111,7 @@ class _ThreadImpl(QThread):
             self._base._is_running = False
 
     def run(self):
-        while self._base.is_running():
-            if self._worker:
-                self._worker()
-                # Force the current thread to sleep for some microseconds:
-                self.usleep(self._update_cycle_us)
+        raise NotImplementedError
 
     def acquire(self):
         return QMutexLocker(self._base.mutex)
@@ -115,4 +130,31 @@ class _ThreadImpl(QThread):
     @property
     def id_(self):
         return int(self.currentThreadId())
+
+
+class _ThreadImpl(_ThreadImplBase):
+    def __init__(self, parent=None, base=None, worker=None,
+                 update_cycle_us=1):
+        #
+        super().__init__(parent=parent, base=base, worker=worker, update_cycle_us=update_cycle_us)
+
+    def run(self):
+        while self._base.is_running():
+            if self._worker:
+                self._worker()
+                # Force the current thread to sleep for some microseconds:
+                self.usleep(self._update_cycle_us)
+
+
+class _ModuleEventMonitorThreadImpl(_ThreadImplBase):
+    def __init__(self, parent=None, base=None, worker=None,
+                 update_cycle_us=1):
+        super().__init__(parent=parent, base=base, worker=worker, update_cycle_us=update_cycle_us)
+
+    def run(self):
+        while self._base.is_running():
+            if self._worker:
+                self._worker()
+                self.msleep(10)
+
 

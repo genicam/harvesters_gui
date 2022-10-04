@@ -22,10 +22,12 @@
 import datetime
 import os
 import sys
-import time
+from typing import Optional, Any
+import weakref
 
 # Related third party imports
-from PyQt5.QtCore import QMutexLocker, QMutex, pyqtSignal, QThread
+from PyQt5.QtCore import QMutexLocker, QMutex, pyqtSignal, QThread, \
+    QModelIndex, QTimer
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QMainWindow, QAction, QComboBox, \
     QDesktopWidget, QFileDialog, QDialog, QShortcut, QApplication
@@ -36,7 +38,9 @@ from genicam.gentl import NotInitializedException, InvalidHandleException, \
     AccessDeniedException
 
 # Local application/library specific imports
-from harvesters.core import Harvester as HarvesterCore
+from harvesters.core import Harvester as HarvesterCore, ImageAcquirer
+from harvesters.core import ParameterSet, ParameterKey
+from harvesters.core import Callback
 from harvesters_gui._private.frontend.canvas import Canvas2D
 from harvesters_gui._private.frontend.helper import compose_tooltip
 from harvesters_gui._private.frontend.pyqt5.about import About
@@ -46,8 +50,17 @@ from harvesters_gui._private.frontend.pyqt5.device_list import ComboBoxDeviceLis
 from harvesters_gui._private.frontend.pyqt5.display_rate_list import ComboBoxDisplayRateList
 from harvesters_gui._private.frontend.pyqt5.helper import get_system_font
 from harvesters_gui._private.frontend.pyqt5.icon import Icon
-from harvesters_gui._private.frontend.pyqt5.thread import _PyQtThread
+from harvesters_gui._private.frontend.pyqt5.thread import _PyQtThread, _PyQtModuleEventMonitorThread
 from harvesters.util.logging import get_logger
+
+
+class OnDataUpdated(Callback):
+    def __init__(self, *, widget):
+        self._widget = widget
+
+    def emit(self, context: Optional[object] = None) -> None:
+        if self._widget:
+            self._widget._view.dataChanged(QModelIndex(), QModelIndex())
 
 
 class Harvester(QMainWindow):
@@ -65,10 +78,11 @@ class Harvester(QMainWindow):
         #
         self._mutex = QMutex()
 
-        profile = True if 'HARVESTER_PROFILE' in os.environ else False
-        self._harvester_core = HarvesterCore(
-            profile=profile, logger=self._logger
-        )
+        config = ParameterSet({
+            ParameterKey._ENABLE_PROFILE: True if 'HARVESTER_PROFILE' in os.environ else False,
+            ParameterKey.LOGGER: self._logger,
+        })
+        self._harvester_core = HarvesterCore(config=config)
         self._ia = None  # Image Acquirer
 
         #
@@ -105,6 +119,13 @@ class Harvester(QMainWindow):
         for o in self._observer_widgets:
             o.update()
 
+        self._on_data_updated = None
+        self._finalizer = weakref.finalize(self, self._reset)
+
+    def _reset(self):
+        self.action_on_disconnect()
+        self._harvester_core.reset()
+
     def _stop_image_acquisition(self):
         self.action_stop_image_acquisition.execute()
 
@@ -124,7 +145,7 @@ class Harvester(QMainWindow):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self._harvester_core.reset()
+        self._finalizer()
 
     @property
     def canvas(self):
@@ -460,7 +481,7 @@ class Harvester(QMainWindow):
         return self._action_stop_image_acquisition
 
     @property
-    def ia(self):
+    def ia(self) -> ImageAcquirer:
         return self._ia
 
     @ia.setter
@@ -469,10 +490,15 @@ class Harvester(QMainWindow):
 
     def action_on_connect(self):
         #
+        config = ParameterSet({
+            ParameterKey.THREAD_FACTORY_METHOD: lambda: _PyQtThread(
+                parent=self, mutex=self._mutex),
+            ParameterKey.THREAD_FACTORY_METHOD_FOR_EVENT_MODULE: lambda: _PyQtModuleEventMonitorThread(
+                parent=self, mutex=self._mutex),
+        })
         try:
-            self._ia = self.harvester_core.create_image_acquirer(
-                self.device_list.currentIndex(),
-                create_thread=lambda: _PyQtThread(parent=self, mutex=self._mutex))
+            self._ia = self.harvester_core.create(
+                self.device_list.currentIndex(), config = config)
             # We want to hold one buffer to keep the chunk data alive:
             self._ia.num_buffers += 1
         except (
@@ -498,6 +524,13 @@ class Harvester(QMainWindow):
                     )
         except AttributeError:
             pass
+        else:
+            self._on_data_updated = OnDataUpdated(
+                widget=self._widget_attribute_controller)
+            self.ia.add_callback(ImageAcquirer.Events.ON_EVENT_DATA_UPDATED,
+                                 self._on_data_updated)
+            self.ia.add_callback(ImageAcquirer.Events.ON_CHUNK_DATA_UPDATED,
+                                 self._on_data_updated)
 
         #
         self.canvas.ia = self.ia
@@ -511,6 +544,7 @@ class Harvester(QMainWindow):
         return enable
 
     def action_on_disconnect(self):
+        self.action_on_stop_image_acquisition()
         if self.attribute_controller:
             if self.attribute_controller.isVisible():
                 self.attribute_controller.close()
@@ -573,7 +607,8 @@ class Harvester(QMainWindow):
         else:
             # Start statistics measurement:
             self.ia.statistics.reset()
-            self._thread_statistics_measurement.start()
+            if self._thread_statistics_measurement:
+                self._thread_statistics_measurement.start()
 
             self.ia.start()
 
@@ -588,7 +623,9 @@ class Harvester(QMainWindow):
 
     def action_on_stop_image_acquisition(self):
         # Stop statistics measurement:
-        self._thread_statistics_measurement.stop()
+        if self._thread_statistics_measurement:
+            self._thread_statistics_measurement.stop()
+            self._thread_statistics_measurement.join()
 
         # Release the preserved buffers, which the we kept chunk data alive,
         # before stopping image acquisition. Otherwise the preserved buffers
