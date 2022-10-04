@@ -36,7 +36,7 @@ from genicam.gentl import NotInitializedException, InvalidHandleException, \
     AccessDeniedException
 
 # Local application/library specific imports
-from harvesters.core import Harvester as HarvesterCore
+from harvesters.core import Harvester as HarvesterCore, ParameterSet, ParameterKey
 from harvesters_gui._private.frontend.canvas import Canvas2D
 from harvesters_gui._private.frontend.helper import compose_tooltip
 from harvesters_gui._private.frontend.pyqt5.about import About
@@ -469,10 +469,13 @@ class Harvester(QMainWindow):
 
     def action_on_connect(self):
         #
+        config = ParameterSet({
+            ParameterKey.THREAD_FACTORY_METHOD: lambda: _PyQtThread(
+                parent=self, mutex=self._mutex),
+        })
         try:
-            self._ia = self.harvester_core.create_image_acquirer(
-                self.device_list.currentIndex(),
-                create_thread=lambda: _PyQtThread(parent=self, mutex=self._mutex))
+            self._ia = self.harvester_core.create(
+                self.device_list.currentIndex(), config=config)
             # We want to hold one buffer to keep the chunk data alive:
             self._ia.num_buffers += 1
         except (
