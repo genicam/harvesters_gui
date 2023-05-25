@@ -148,7 +148,7 @@ class Harvester(QMainWindow):
 
     @property
     def cti_files(self):
-        return self.harvester_core.cti_files
+        return self.harvester_core.files
 
     @property
     def harvester_core(self):
