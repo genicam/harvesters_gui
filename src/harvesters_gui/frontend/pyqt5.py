@@ -25,7 +25,7 @@ import sys
 import time
 
 # Related third party imports
-from PyQt5.QtCore import QMutexLocker, QMutex, pyqtSignal, QThread
+from PyQt5.QtCore import QMutexLocker, QMutex, pyqtSignal, QThread, Qt
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QMainWindow, QAction, QComboBox, \
     QDesktopWidget, QFileDialog, QDialog, QShortcut, QApplication
@@ -55,7 +55,7 @@ class Harvester(QMainWindow):
     _signal_update_statistics = pyqtSignal(str)
     _signal_stop_image_acquisition = pyqtSignal()
 
-    def __init__(self, *, vsync=True, logger=None):
+    def __init__(self, *, vsync=True, logger=None, cti_file=None, selected_device=None):
         #
         self._logger = logger or get_logger(name='harvesters')
 
@@ -101,9 +101,21 @@ class Harvester(QMainWindow):
         #
         self._initialize_widgets()
 
+        # Load an initial CTI file if one was provided.
+        if cti_file:
+            self._harvester_core.add_file(file_path=cti_file)
+            self._harvester_core.update()
+
         #
         for o in self._observer_widgets:
             o.update()
+
+        # If selected_device is provided, attempt to find the provided device name
+        # in the list and select it by default (requires that cti_file also be provided).
+        if selected_device:
+            index = self._widget_device_list.findText(selected_device, Qt.MatchContains)
+            if index != -1:
+                self._widget_device_list.setCurrentIndex(index)
 
     def _stop_image_acquisition(self):
         self.action_stop_image_acquisition.execute()
